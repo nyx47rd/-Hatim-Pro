@@ -21,4 +21,6 @@ export interface HatimData {
   activeTaskId: string;
   tasks: HatimTask[];
   logs: ReadingLog[];
+  mfaEnabled?: boolean;
+  totpSecret?: string;
 }

@@ -22,7 +22,8 @@ import {
   VolumeX,
   Star,
   CheckSquare,
-  Square
+  Square,
+  KeyRound
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { HatimData, ReadingLog, HatimTask } from './types';
@@ -30,11 +31,12 @@ import { useAuth } from './contexts/AuthContext';
 import { AuthModal } from './components/AuthModal';
 import { syncDataToFirebase, listenToFirebaseData } from './services/db';
 import { auth } from './lib/firebase';
-import { signOut, deleteUser, multiFactor, TotpMultiFactorGenerator } from 'firebase/auth';
+import { signOut, deleteUser } from 'firebase/auth';
 import { doc, deleteDoc } from 'firebase/firestore';
 import { db } from './lib/firebase';
 import { QRCodeSVG } from 'qrcode.react';
 import { getFirebaseErrorMessage } from './lib/firebaseErrors';
+import * as OTPAuth from 'otpauth';
 
 const STORAGE_KEY = 'hatim_tracker_data_v3';
 const QURAN_TOTAL_PAGES = 604;
@@ -122,6 +124,9 @@ export default function App() {
   const [mfaError, setMfaError] = useState<string | null>(null);
   const [mfaSuccess, setMfaSuccess] = useState<string | null>(null);
   const [isMfaEnrolled, setIsMfaEnrolled] = useState(false);
+  const [is2FAVerified, setIs2FAVerified] = useState(false);
+  const [loginTotpCode, setLoginTotpCode] = useState('');
+  const [loginMfaError, setLoginMfaError] = useState<string | null>(null);
 
   const [taskToDelete, setTaskToDelete] = useState<string | null>(null);
   const [selectedLogs, setSelectedLogs] = useState<string[]>([]);
@@ -201,13 +206,13 @@ export default function App() {
 
   // Check 2FA Enrollment status
   useEffect(() => {
-    if (user) {
-      const enrolledFactors = multiFactor(user).enrolledFactors;
-      setIsMfaEnrolled(enrolledFactors.length > 0);
+    if (user && data.mfaEnabled) {
+      setIsMfaEnrolled(true);
     } else {
       setIsMfaEnrolled(false);
+      setIs2FAVerified(false);
     }
-  }, [user]);
+  }, [user, data.mfaEnabled]);
 
   // Listen to Firebase data
   useEffect(() => {
@@ -450,6 +455,34 @@ export default function App() {
     setActiveView('home');
   };
 
+  const handleVerify2FALogin = async (e: FormEvent) => {
+    e.preventDefault();
+    if (!user || !data.totpSecret || !loginTotpCode) return;
+    
+    setLoginMfaError(null);
+    try {
+      const totp = new OTPAuth.TOTP({
+        issuer: "Hatim Pro",
+        label: user.email || "Kullanıcı",
+        algorithm: "SHA1",
+        digits: 6,
+        period: 30,
+        secret: OTPAuth.Secret.fromBase32(data.totpSecret),
+      });
+
+      const delta = totp.validate({ token: loginTotpCode, window: 1 });
+      
+      if (delta !== null) {
+        setIs2FAVerified(true);
+        setLoginTotpCode('');
+      } else {
+        setLoginMfaError("Girdiğiniz kod hatalı veya süresi dolmuş.");
+      }
+    } catch (error: any) {
+      setLoginMfaError("Doğrulama sırasında bir hata oluştu.");
+    }
+  };
+
   const handleDeleteAccount = async () => {
     if (!user) return;
     try {
@@ -478,12 +511,11 @@ export default function App() {
     setMfaError(null);
     setMfaSuccess(null);
     try {
-      const multiFactorSession = await multiFactor(user).getSession();
-      const secret = await TotpMultiFactorGenerator.generateSecret(multiFactorSession);
-      setTotpSecret(secret);
+      const secret = new OTPAuth.Secret({ size: 20 });
+      setTotpSecret(secret.base32);
       setIsEnrolling2FA(true);
     } catch (error: any) {
-      setMfaError(getFirebaseErrorMessage(error));
+      setMfaError("2FA başlatılırken hata oluştu.");
     }
   };
 
@@ -491,15 +523,30 @@ export default function App() {
     if (!user || !totpSecret || !totpCode) return;
     setMfaError(null);
     try {
-      const assertion = TotpMultiFactorGenerator.assertionForEnrollment(totpSecret, totpCode);
-      await multiFactor(user).enroll(assertion, "Authenticator App");
-      setIsEnrolling2FA(false);
-      setTotpSecret(null);
-      setTotpCode('');
-      setMfaSuccess('İki faktörlü doğrulama başarıyla etkinleştirildi.');
-      setIsMfaEnrolled(true);
+      const totp = new OTPAuth.TOTP({
+        issuer: "Hatim Pro",
+        label: user.email || "Kullanıcı",
+        algorithm: "SHA1",
+        digits: 6,
+        period: 30,
+        secret: OTPAuth.Secret.fromBase32(totpSecret),
+      });
+
+      const delta = totp.validate({ token: totpCode, window: 1 });
+      
+      if (delta !== null) {
+        setIsEnrolling2FA(false);
+        setTotpSecret(null);
+        setTotpCode('');
+        setMfaSuccess('İki faktörlü doğrulama başarıyla etkinleştirildi.');
+        setIsMfaEnrolled(true);
+        setIs2FAVerified(true);
+        setData(prev => ({ ...prev, mfaEnabled: true, totpSecret: totpSecret }));
+      } else {
+        setMfaError("Girdiğiniz kod hatalı veya süresi dolmuş.");
+      }
     } catch (error: any) {
-      setMfaError(getFirebaseErrorMessage(error));
+      setMfaError("Doğrulama sırasında bir hata oluştu.");
     }
   };
 
@@ -508,14 +555,11 @@ export default function App() {
     setMfaError(null);
     setMfaSuccess(null);
     try {
-      const enrolledFactors = multiFactor(user).enrolledFactors;
-      if (enrolledFactors.length > 0) {
-        await multiFactor(user).unenroll(enrolledFactors[0]);
-        setMfaSuccess('İki faktörlü doğrulama devre dışı bırakıldı.');
-        setIsMfaEnrolled(false);
-      }
+      setMfaSuccess('İki faktörlü doğrulama devre dışı bırakıldı.');
+      setIsMfaEnrolled(false);
+      setData(prev => ({ ...prev, mfaEnabled: false, totpSecret: undefined }));
     } catch (error: any) {
-      setMfaError(getFirebaseErrorMessage(error));
+      setMfaError("Devre dışı bırakılırken hata oluştu.");
     }
   };
 
@@ -835,10 +879,13 @@ export default function App() {
                         1. Authenticator uygulamanızı (Google Authenticator, Authy vb.) açın ve aşağıdaki QR kodu okutun:
                       </p>
                       <div className="bg-white p-4 rounded-xl flex justify-center">
-                        <QRCodeSVG value={totpSecret.generateQrCodeUrl(user.email || 'Hatim Pro', 'Hatim Pro')} size={150} />
+                        <QRCodeSVG 
+                          value={`otpauth://totp/Hatim%20Pro:${user.email || 'Kullanıcı'}?secret=${totpSecret}&issuer=Hatim%20Pro`} 
+                          size={150} 
+                        />
                       </div>
                       <p className="text-xs text-sage-600 text-center font-mono bg-white p-2 rounded-lg border border-sage-100">
-                        {totpSecret.secretKey}
+                        {totpSecret}
                       </p>
                       <p className="text-xs text-sage-600">
                         2. Uygulamada görünen 6 haneli kodu aşağıya girin:
@@ -1061,6 +1108,55 @@ export default function App() {
                   className="w-2 h-2 bg-sage-300 rounded-full shadow-[0_0_8px_rgba(167,183,171,0.5)]"
                 />
               ))}
+            </div>
+          </motion.div>
+        ) : user && data.mfaEnabled && !is2FAVerified ? (
+          <motion.div
+            key="2fa-verification"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            className="fixed inset-0 z-[100] bg-sage-50 flex flex-col items-center justify-center p-4"
+          >
+            <div className="bg-white rounded-3xl w-full max-w-md p-8 shadow-2xl text-center">
+              <div className="w-16 h-16 bg-sage-100 text-sage-600 rounded-full flex items-center justify-center mx-auto mb-6">
+                <KeyRound size={32} />
+              </div>
+              <h2 className="text-2xl font-bold text-sage-800 mb-2">İki Faktörlü Doğrulama</h2>
+              <p className="text-sage-500 mb-6 text-sm">
+                Hesabınıza erişmek için Authenticator uygulamanızdaki 6 haneli kodu girin.
+              </p>
+
+              {loginMfaError && (
+                <div className="bg-red-50 text-red-600 p-3 rounded-xl text-sm mb-4">
+                  {loginMfaError}
+                </div>
+              )}
+
+              <form onSubmit={handleVerify2FALogin} className="space-y-4">
+                <div>
+                  <input
+                    type="text"
+                    value={loginTotpCode}
+                    onChange={(e) => setLoginTotpCode(e.target.value)}
+                    required
+                    maxLength={6}
+                    className="w-full px-4 py-3 bg-sage-50 border border-sage-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-sage-500 transition-all text-center tracking-widest text-lg font-mono"
+                    placeholder="000000"
+                  />
+                </div>
+                <button
+                  type="submit"
+                  className="w-full bg-sage-600 hover:bg-sage-700 text-white font-bold py-3 rounded-xl transition-colors"
+                >
+                  Doğrula
+                </button>
+              </form>
+              <button
+                onClick={() => signOut(auth)}
+                className="mt-6 text-sm text-sage-500 hover:text-sage-700 font-medium"
+              >
+                Çıkış Yap
+              </button>
             </div>
           </motion.div>
         ) : (

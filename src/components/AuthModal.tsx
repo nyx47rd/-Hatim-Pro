@@ -6,9 +6,7 @@ import {
   signInWithEmailAndPassword, 
   createUserWithEmailAndPassword, 
   signInWithPopup,
-  sendPasswordResetEmail,
-  getMultiFactorResolver,
-  TotpMultiFactorGenerator
+  sendPasswordResetEmail
 } from 'firebase/auth';
 import { getFirebaseErrorMessage } from '../lib/firebaseErrors';
 
@@ -20,8 +18,6 @@ interface AuthModalProps {
 export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
   const [isLogin, setIsLogin] = useState(true);
   const [isResetPassword, setIsResetPassword] = useState(false);
-  const [mfaResolver, setMfaResolver] = useState<any>(null);
-  const [mfaCode, setMfaCode] = useState('');
   
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -32,8 +28,6 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
   const resetState = () => {
     setIsLogin(true);
     setIsResetPassword(false);
-    setMfaResolver(null);
-    setMfaCode('');
     setEmail('');
     setPassword('');
     setError(null);
@@ -52,11 +46,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
       await signInWithPopup(auth, githubProvider);
       handleClose();
     } catch (err: any) {
-      if (err.code === 'auth/multi-factor-auth-required') {
-        setMfaResolver(getMultiFactorResolver(auth, err));
-      } else {
-        setError(getFirebaseErrorMessage(err));
-      }
+      setError(getFirebaseErrorMessage(err));
     } finally {
       setLoading(false);
     }
@@ -69,11 +59,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
       await signInWithPopup(auth, microsoftProvider);
       handleClose();
     } catch (err: any) {
-      if (err.code === 'auth/multi-factor-auth-required') {
-        setMfaResolver(getMultiFactorResolver(auth, err));
-      } else {
-        setError(getFirebaseErrorMessage(err));
-      }
+      setError(getFirebaseErrorMessage(err));
     } finally {
       setLoading(false);
     }
@@ -98,26 +84,6 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
     }
   };
 
-  const handleMfaSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!mfaCode || !mfaResolver) return;
-    
-    setError(null);
-    setLoading(true);
-    try {
-      const assertion = TotpMultiFactorGenerator.assertionForSignIn(
-        mfaResolver.hints[0].uid,
-        mfaCode
-      );
-      await mfaResolver.resolveSignIn(assertion);
-      handleClose();
-    } catch (err: any) {
-      setError(getFirebaseErrorMessage(err));
-    } finally {
-      setLoading(false);
-    }
-  };
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
@@ -131,11 +97,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
       }
       handleClose();
     } catch (err: any) {
-      if (err.code === 'auth/multi-factor-auth-required') {
-        setMfaResolver(getMultiFactorResolver(auth, err));
-      } else {
-        setError(getFirebaseErrorMessage(err));
-      }
+      setError(getFirebaseErrorMessage(err));
     } finally {
       setLoading(false);
     }
@@ -164,48 +126,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
             </button>
 
             <div className="p-8">
-              {mfaResolver ? (
-                <>
-                  <button onClick={() => setMfaResolver(null)} className="mb-4 text-sage-500 hover:text-sage-700 flex items-center gap-1 text-sm font-medium">
-                    <ArrowLeft size={16} /> Geri
-                  </button>
-                  <h2 className="text-2xl font-bold text-sage-800 mb-2">İki Faktörlü Doğrulama</h2>
-                  <p className="text-sage-500 mb-6 text-sm">
-                    Lütfen Authenticator uygulamanızdaki 6 haneli kodu girin.
-                  </p>
-
-                  {error && (
-                    <div className="bg-red-50 text-red-600 p-3 rounded-xl text-sm mb-4">
-                      {error}
-                    </div>
-                  )}
-
-                  <form onSubmit={handleMfaSubmit} className="space-y-4">
-                    <div>
-                      <label className="block text-sm font-semibold text-sage-700 mb-1">Doğrulama Kodu</label>
-                      <div className="relative">
-                        <KeyRound className="absolute left-3 top-1/2 -translate-y-1/2 text-sage-400" size={18} />
-                        <input
-                          type="text"
-                          value={mfaCode}
-                          onChange={(e) => setMfaCode(e.target.value)}
-                          required
-                          maxLength={6}
-                          className="w-full pl-10 pr-4 py-3 bg-sage-50 border border-sage-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-sage-500 transition-all text-center tracking-widest text-lg font-mono"
-                          placeholder="000000"
-                        />
-                      </div>
-                    </div>
-                    <button
-                      type="submit"
-                      disabled={loading}
-                      className="w-full bg-sage-600 hover:bg-sage-700 text-white font-bold py-3 rounded-xl transition-colors flex items-center justify-center gap-2 mt-6"
-                    >
-                      {loading ? <span className="animate-pulse">Doğrulanıyor...</span> : 'Doğrula'}
-                    </button>
-                  </form>
-                </>
-              ) : isResetPassword ? (
+              {isResetPassword ? (
                 <>
                   <button onClick={() => { setIsResetPassword(false); setError(null); setSuccessMsg(null); }} className="mb-4 text-sage-500 hover:text-sage-700 flex items-center gap-1 text-sm font-medium">
                     <ArrowLeft size={16} /> Geri
