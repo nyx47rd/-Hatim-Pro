@@ -85,6 +85,7 @@ type View = 'home' | 'tasks' | 'history' | 'settings';
 
 export default function App() {
   const [activeView, setActiveView] = useState<View>('home');
+  const { user, loading: authLoading } = useAuth();
   
   // Dark Mode Logic
   useEffect(() => {
@@ -319,7 +320,6 @@ export default function App() {
   const [customEndPage, setCustomEndPage] = useState<string>('604');
   const [customTaskName, setCustomTaskName] = useState<string>('');
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
-  const { user, loading: authLoading } = useAuth();
   
   const isFirebaseSyncing = useRef(false);
   const isInitialLoad = useRef(true);
@@ -574,7 +574,7 @@ export default function App() {
     setActiveView('home');
   };
 
-  const handleChangePassword = async (e: React.FormEvent) => {
+  const handleChangePassword = async (e: FormEvent) => {
     e.preventDefault();
     if (!user || !user.email) return;
 
@@ -632,7 +632,7 @@ export default function App() {
     }
   };
 
-  const handleSendPasswordReset = async (e: React.FormEvent) => {
+  const handleSendPasswordReset = async (e: FormEvent) => {
     e.preventDefault();
     if (!user || !user.email) return;
 
