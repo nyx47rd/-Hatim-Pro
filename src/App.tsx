@@ -46,7 +46,6 @@ const SOUNDS = {
 type View = 'home' | 'tasks' | 'history' | 'settings';
 
 export default function App() {
-  const [showSplash, setShowSplash] = useState(true);
   const [activeView, setActiveView] = useState<View>('home');
   const [data, setData] = useState<HatimData>(() => {
     const saved = localStorage.getItem(STORAGE_KEY);
@@ -120,9 +119,20 @@ export default function App() {
     });
     setSelectedTasks([]);
   };
+
   const [isSoundEnabled, setIsSoundEnabled] = useState(() => {
     const saved = localStorage.getItem('hatim_sound_enabled');
     return saved === null ? true : saved === 'true';
+  });
+
+  const [isSplashEnabled, setIsSplashEnabled] = useState(() => {
+    const saved = localStorage.getItem('hatim_splash_enabled');
+    return saved === null ? true : saved === 'true';
+  });
+
+  const [showSplash, setShowSplash] = useState(() => {
+    // Only show splash if it's enabled and it's a fresh load (not handled by state persistence across views)
+    return isSplashEnabled;
   });
 
   // Sounds
@@ -148,11 +158,19 @@ export default function App() {
   }, [isSoundEnabled]);
 
   useEffect(() => {
+    localStorage.setItem('hatim_splash_enabled', isSplashEnabled.toString());
+  }, [isSplashEnabled]);
+
+  useEffect(() => {
+    if (!isSplashEnabled) {
+      setShowSplash(false);
+      return;
+    }
     const timer = setTimeout(() => {
       setShowSplash(false);
     }, 2500);
     return () => clearTimeout(timer);
-  }, []);
+  }, [isSplashEnabled]);
 
   const activeTask = useMemo(() => {
     return data.tasks.find(t => t.id === data.activeTaskId) || data.tasks[0];
@@ -601,22 +619,43 @@ export default function App() {
       <div className="space-y-4">
         <section className="bg-white rounded-3xl p-6 border border-sage-100 shadow-sm">
           <h3 className="text-sm font-bold text-sage-500 uppercase tracking-widest mb-4">Uygulama Ayarları</h3>
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <div className="bg-sage-50 p-2 rounded-lg text-sage-600">
-                {isSoundEnabled ? <Volume2 size={20} /> : <VolumeX size={20} />}
+          
+          <div className="space-y-6">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <div className="bg-sage-50 p-2 rounded-lg text-sage-600">
+                  {isSoundEnabled ? <Volume2 size={20} /> : <VolumeX size={20} />}
+                </div>
+                <div>
+                  <p className="font-bold text-sage-800">Ses Efektleri</p>
+                  <p className="text-xs text-sage-500">Etkileşimlerde ses çal</p>
+                </div>
               </div>
-              <div>
-                <p className="font-bold text-sage-800">Ses Efektleri</p>
-                <p className="text-xs text-sage-500">Etkileşimlerde ses çal</p>
-              </div>
+              <button 
+                onClick={() => { playClick(); setIsSoundEnabled(!isSoundEnabled); }}
+                className={`w-12 h-6 rounded-full transition-colors relative ${isSoundEnabled ? 'bg-sage-500' : 'bg-sage-200'}`}
+              >
+                <div className={`absolute top-1 w-4 h-4 bg-white rounded-full transition-all ${isSoundEnabled ? 'left-7' : 'left-1'}`} />
+              </button>
             </div>
-            <button 
-              onClick={() => { playClick(); setIsSoundEnabled(!isSoundEnabled); }}
-              className={`w-12 h-6 rounded-full transition-colors relative ${isSoundEnabled ? 'bg-sage-500' : 'bg-sage-200'}`}
-            >
-              <div className={`absolute top-1 w-4 h-4 bg-white rounded-full transition-all ${isSoundEnabled ? 'left-7' : 'left-1'}`} />
-            </button>
+
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <div className="bg-sage-50 p-2 rounded-lg text-sage-600">
+                  <LayoutGrid size={20} />
+                </div>
+                <div>
+                  <p className="font-bold text-sage-800">Açılış Ekranı</p>
+                  <p className="text-xs text-sage-500">Uygulama açılırken splash göster</p>
+                </div>
+              </div>
+              <button 
+                onClick={() => { playClick(); setIsSplashEnabled(!isSplashEnabled); }}
+                className={`w-12 h-6 rounded-full transition-colors relative ${isSplashEnabled ? 'bg-sage-500' : 'bg-sage-200'}`}
+              >
+                <div className={`absolute top-1 w-4 h-4 bg-white rounded-full transition-all ${isSplashEnabled ? 'left-7' : 'left-1'}`} />
+              </button>
+            </div>
           </div>
         </section>
 
@@ -740,7 +779,8 @@ export default function App() {
             <header className="bg-white border-b border-sage-200 px-6 py-6 sticky top-0 z-30">
               <div className="max-w-2xl mx-auto flex justify-between items-center">
                 <h1 className="display text-2xl font-bold text-sage-800 tracking-tight flex items-center gap-2">
-                  <span className="text-sage-500">⭐</span> Hatim Pro
+                  <img src="/favicon.svg" alt="Hatim Pro Logo" className="w-8 h-8" referrerPolicy="no-referrer" />
+                  Hatim Pro
                 </h1>
               </div>
             </header>
