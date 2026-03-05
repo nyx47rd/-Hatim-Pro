@@ -26,6 +26,11 @@ import {
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { HatimData, ReadingLog, HatimTask } from './types';
+import { useAuth } from './contexts/AuthContext';
+import { AuthModal } from './components/AuthModal';
+import { syncDataToFirebase, listenToFirebaseData } from './services/db';
+import { auth } from './lib/firebase';
+import { signOut } from 'firebase/auth';
 
 const STORAGE_KEY = 'hatim_tracker_data_v3';
 const QURAN_TOTAL_PAGES = 604;
@@ -148,10 +153,36 @@ export default function App() {
   const [customStartPage, setCustomStartPage] = useState<string>('1');
   const [customEndPage, setCustomEndPage] = useState<string>('604');
   const [customTaskName, setCustomTaskName] = useState<string>('');
+  const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
+  const { user, loading: authLoading } = useAuth();
 
+  // Sync to Firebase when local data changes
   useEffect(() => {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
-  }, [data]);
+    if (user && !authLoading) {
+      syncDataToFirebase(user.uid, data);
+    }
+  }, [data, user, authLoading]);
+
+  // Listen to Firebase data
+  useEffect(() => {
+    if (user && !authLoading) {
+      const unsubscribe = listenToFirebaseData(user.uid, (firebaseData) => {
+        // Simple merge: if firebase has data, we can use it.
+        // In a real app, you'd want a more robust merge strategy (e.g. comparing timestamps).
+        // Here we just overwrite local if firebase updates, but since we also sync up,
+        // we need to be careful of infinite loops. The listenToFirebaseData triggers onSnapshot.
+        // To avoid loop, we only update if JSON string differs.
+        setData(prev => {
+          if (JSON.stringify(prev) !== JSON.stringify(firebaseData)) {
+            return firebaseData;
+          }
+          return prev;
+        });
+      });
+      return () => unsubscribe();
+    }
+  }, [user, authLoading]);
 
   useEffect(() => {
     localStorage.setItem('hatim_sound_enabled', isSoundEnabled.toString());
@@ -618,6 +649,44 @@ export default function App() {
       
       <div className="space-y-4">
         <section className="bg-white rounded-3xl p-6 border border-sage-100 shadow-sm">
+          <h3 className="text-sm font-bold text-sage-500 uppercase tracking-widest mb-4">Hesap & Eşitleme</h3>
+          
+          <div className="space-y-4">
+            {user ? (
+              <div className="flex flex-col gap-4">
+                <div className="flex items-center gap-3">
+                  <div className="bg-emerald-50 p-2 rounded-lg text-emerald-600">
+                    <CheckCircle2 size={20} />
+                  </div>
+                  <div>
+                    <p className="font-bold text-sage-800">Giriş Yapıldı</p>
+                    <p className="text-xs text-sage-500">{user.email}</p>
+                  </div>
+                </div>
+                <button 
+                  onClick={() => { playClick(); signOut(auth); }}
+                  className="w-full py-3 text-sage-600 font-bold bg-sage-50 rounded-xl hover:bg-sage-100 transition-colors"
+                >
+                  Çıkış Yap
+                </button>
+              </div>
+            ) : (
+              <div className="flex flex-col gap-4">
+                <p className="text-sm text-sage-600">
+                  Cihazlar arası veri eşitlemesi için giriş yapın veya kayıt olun.
+                </p>
+                <button 
+                  onClick={() => { playClick(); setIsAuthModalOpen(true); }}
+                  className="w-full py-3 text-white font-bold bg-sage-600 rounded-xl hover:bg-sage-700 transition-colors"
+                >
+                  Giriş Yap / Kayıt Ol
+                </button>
+              </div>
+            )}
+          </div>
+        </section>
+
+        <section className="bg-white rounded-3xl p-6 border border-sage-100 shadow-sm">
           <h3 className="text-sm font-bold text-sage-500 uppercase tracking-widest mb-4">Uygulama Ayarları</h3>
           
           <div className="space-y-6">
@@ -683,7 +752,7 @@ export default function App() {
   return (
     <div className="min-h-screen bg-sage-50">
       <AnimatePresence mode="wait">
-        {showSplash ? (
+        {showSplash || authLoading ? (
           <motion.div
             key="splash"
             initial={{ opacity: 1 }}
@@ -828,6 +897,8 @@ export default function App() {
           </motion.div>
         )}
       </AnimatePresence>
+
+      <AuthModal isOpen={isAuthModalOpen} onClose={() => setIsAuthModalOpen(false)} />
 
       {/* Add Log Modal */}
       <AnimatePresence>
