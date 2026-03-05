@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { X, Mail, Lock, LogIn, UserPlus, Github, KeyRound, ArrowLeft } from 'lucide-react';
+import { X, Mail, Lock, LogIn, UserPlus, Github, ArrowLeft } from 'lucide-react';
 import { auth, githubProvider, microsoftProvider } from '../lib/firebase';
 import { 
   signInWithEmailAndPassword, 
@@ -75,7 +75,11 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
     setSuccessMsg(null);
     setLoading(true);
     try {
-      await sendPasswordResetEmail(auth, email);
+      const actionCodeSettings = {
+        url: window.location.origin,
+        handleCodeInApp: false,
+      };
+      await sendPasswordResetEmail(auth, email, actionCodeSettings);
       setSuccessMsg('Şifre sıfırlama bağlantısı e-posta adresinize gönderildi.');
     } catch (err: any) {
       setError(getFirebaseErrorMessage(err));

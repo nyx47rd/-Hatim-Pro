@@ -13,6 +13,7 @@ const firebaseConfig = {
 
 const app = initializeApp(firebaseConfig);
 export const auth = getAuth(app);
+auth.languageCode = 'tr';
 export const db = getFirestore(app);
 
 export const githubProvider = new GithubAuthProvider();

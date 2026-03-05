@@ -23,7 +23,7 @@ import {
   Star,
   CheckSquare,
   Square,
-  KeyRound
+  Key
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { HatimData, ReadingLog, HatimTask } from './types';
@@ -860,7 +860,7 @@ export default function App() {
                 <div className="mt-4 p-4 bg-sage-50 rounded-2xl border border-sage-100">
                   <div className="flex items-center justify-between mb-2">
                     <div className="flex items-center gap-2">
-                      <KeyRound size={18} className="text-sage-600" />
+                      <Key size={18} className="text-sage-600" />
                       <span className="font-bold text-sage-800 text-sm">İki Faktörlü Doğrulama (2FA)</span>
                     </div>
                     {isMfaEnrolled ? (
@@ -1119,7 +1119,7 @@ export default function App() {
           >
             <div className="bg-white rounded-3xl w-full max-w-md p-8 shadow-2xl text-center">
               <div className="w-16 h-16 bg-sage-100 text-sage-600 rounded-full flex items-center justify-center mx-auto mb-6">
-                <KeyRound size={32} />
+                <Key size={32} />
               </div>
               <h2 className="text-2xl font-bold text-sage-800 mb-2">İki Faktörlü Doğrulama</h2>
               <p className="text-sage-500 mb-6 text-sm">
