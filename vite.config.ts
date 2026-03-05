@@ -15,7 +15,7 @@ export default defineConfig(({mode}) => {
         registerType: 'autoUpdate',
         injectRegister: 'auto',
         manifestFilename: 'manifest.json',
-        includeAssets: ['favicon.svg', 'pwa-192x192.svg', 'pwa-512x512.svg'],
+        includeAssets: ['favicon.svg', 'pwa-192x192.svg', 'pwa-512x512.svg', 'pwa-192x192.png', 'pwa-512x512.png'],
         manifest: {
           name: 'Hatim Pro',
           short_name: 'HatimPro',
@@ -23,10 +23,32 @@ export default defineConfig(({mode}) => {
           theme_color: '#4B5E51',
           background_color: '#f0fdf4',
           display: 'standalone',
+          display_override: ['window-controls-overlay', 'standalone', 'minimal-ui'],
           orientation: 'portrait',
           start_url: '/',
           id: '/',
+          lang: 'tr',
+          dir: 'ltr',
+          categories: ['lifestyle', 'education', 'productivity'],
           icons: [
+            {
+              src: '/pwa-192x192.png',
+              sizes: '192x192',
+              type: 'image/png',
+              purpose: 'any'
+            },
+            {
+              src: '/pwa-512x512.png',
+              sizes: '512x512',
+              type: 'image/png',
+              purpose: 'any'
+            },
+            {
+              src: '/pwa-512x512.png',
+              sizes: '512x512',
+              type: 'image/png',
+              purpose: 'maskable'
+            },
             {
               src: '/pwa-192x192.svg',
               sizes: '192x192',
@@ -38,12 +60,31 @@ export default defineConfig(({mode}) => {
               sizes: '512x512',
               type: 'image/svg+xml',
               purpose: 'any'
+            }
+          ],
+          screenshots: [
+            {
+              src: 'https://picsum.photos/seed/hatim1/1080/1920',
+              sizes: '1080x1920',
+              type: 'image/jpeg',
+              form_factor: 'narrow',
+              label: 'Hatim Takip Ekranı'
             },
             {
-              src: '/pwa-512x512.svg',
-              sizes: '512x512',
-              type: 'image/svg+xml',
-              purpose: 'maskable'
+              src: 'https://picsum.photos/seed/hatim2/1920/1080',
+              sizes: '1920x1080',
+              type: 'image/jpeg',
+              form_factor: 'wide',
+              label: 'Hatim Detayları'
+            }
+          ],
+          shortcuts: [
+            {
+              name: 'Yeni Hatim',
+              short_name: 'Yeni',
+              description: 'Yeni bir hatim başlat',
+              url: '/?action=new',
+              icons: [{ src: '/pwa-192x192.png', sizes: '192x192' }]
             }
           ]
         },
