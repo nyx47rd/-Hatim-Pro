@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { X, Mail, Lock, LogIn, UserPlus } from 'lucide-react';
-import { auth } from '../lib/firebase';
-import { signInWithEmailAndPassword, createUserWithEmailAndPassword } from 'firebase/auth';
+import { X, Mail, Lock, LogIn, UserPlus, Github } from 'lucide-react';
+import { auth, githubProvider, microsoftProvider } from '../lib/firebase';
+import { signInWithEmailAndPassword, createUserWithEmailAndPassword, signInWithPopup } from 'firebase/auth';
 
 interface AuthModalProps {
   isOpen: boolean;
@@ -15,6 +15,32 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
   const [password, setPassword] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+
+  const handleGithubLogin = async () => {
+    setError(null);
+    setLoading(true);
+    try {
+      await signInWithPopup(auth, githubProvider);
+      onClose();
+    } catch (err: any) {
+      setError(err.message || 'GitHub ile giriş başarısız.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleMicrosoftLogin = async () => {
+    setError(null);
+    setLoading(true);
+    try {
+      await signInWithPopup(auth, microsoftProvider);
+      onClose();
+    } catch (err: any) {
+      setError(err.message || 'Microsoft ile giriş başarısız.');
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -118,6 +144,36 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
                   )}
                 </button>
               </form>
+
+              <div className="mt-6 flex flex-col gap-3">
+                <div className="relative flex items-center py-2">
+                  <div className="flex-grow border-t border-sage-200"></div>
+                  <span className="flex-shrink-0 mx-4 text-sage-400 text-sm">veya</span>
+                  <div className="flex-grow border-t border-sage-200"></div>
+                </div>
+
+                <button
+                  onClick={handleGithubLogin}
+                  disabled={loading}
+                  className="w-full bg-[#24292e] hover:bg-[#2f363d] text-white font-semibold py-3 rounded-xl transition-colors flex items-center justify-center gap-2"
+                >
+                  <Github size={18} /> GitHub ile Devam Et
+                </button>
+
+                <button
+                  onClick={handleMicrosoftLogin}
+                  disabled={loading}
+                  className="w-full bg-white border border-sage-200 hover:bg-sage-50 text-sage-800 font-semibold py-3 rounded-xl transition-colors flex items-center justify-center gap-2"
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 21 21">
+                    <path fill="#f25022" d="M1 1h9v9H1z"/>
+                    <path fill="#00a4ef" d="M1 11h9v9H1z"/>
+                    <path fill="#7fba00" d="M11 1h9v9h-9z"/>
+                    <path fill="#ffb900" d="M11 11h9v9h-9z"/>
+                  </svg>
+                  Microsoft ile Devam Et
+                </button>
+              </div>
 
               <div className="mt-6 text-center">
                 <button

@@ -30,7 +30,9 @@ import { useAuth } from './contexts/AuthContext';
 import { AuthModal } from './components/AuthModal';
 import { syncDataToFirebase, listenToFirebaseData } from './services/db';
 import { auth } from './lib/firebase';
-import { signOut } from 'firebase/auth';
+import { signOut, deleteUser } from 'firebase/auth';
+import { doc, deleteDoc } from 'firebase/firestore';
+import { db } from './lib/firebase';
 
 const STORAGE_KEY = 'hatim_tracker_data_v3';
 const QURAN_TOTAL_PAGES = 604;
@@ -46,6 +48,30 @@ const SOUNDS = {
   success: 'https://assets.mixkit.co/active_storage/sfx/2013/2013-preview.mp3',
   delete: 'https://assets.mixkit.co/active_storage/sfx/2019/2019-preview.mp3',
   open: 'https://assets.mixkit.co/active_storage/sfx/2568/2568-preview.mp3',
+};
+
+const recalculateTaskLogs = (logs: ReadingLog[], task: HatimTask) => {
+  const taskLogs = logs.filter(l => l.taskId === task.id)
+    .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
+    
+  let basePage = task.startPage - 1;
+  const recalculatedTaskLogs = taskLogs.map(log => {
+    const absolutePage = Math.min(task.endPage, basePage + log.pagesRead);
+    const actualPagesRead = absolutePage - basePage;
+    basePage = absolutePage;
+    return {
+      ...log,
+      absolutePage: absolutePage,
+      pagesRead: actualPagesRead
+    };
+  }).filter(log => log.pagesRead > 0);
+
+  const otherLogs = logs.filter(l => l.taskId !== task.id);
+  
+  return {
+    logs: [...recalculatedTaskLogs, ...otherLogs],
+    latestAbsolutePage: basePage
+  };
 };
 
 type View = 'home' | 'tasks' | 'history' | 'settings';
@@ -85,6 +111,7 @@ export default function App() {
   const [isAddTaskOpen, setIsAddTaskOpen] = useState(false);
   const [isJuzPickerOpen, setIsJuzPickerOpen] = useState(false);
   const [isResetConfirmOpen, setIsResetConfirmOpen] = useState(false);
+  const [isDeleteAccountConfirmOpen, setIsDeleteAccountConfirmOpen] = useState(false);
   const [taskToDelete, setTaskToDelete] = useState<string | null>(null);
   const [selectedLogs, setSelectedLogs] = useState<string[]>([]);
   const [selectedTasks, setSelectedTasks] = useState<string[]>([]);
@@ -95,16 +122,18 @@ export default function App() {
     playDelete();
     setData(prev => {
       const filteredLogs = prev.logs.filter(log => !selectedLogs.includes(log.id));
+      let updatedLogs = filteredLogs;
+      
       const updatedTasks = prev.tasks.map(task => {
-        const taskLogs = filteredLogs.filter(l => l.taskId === task.id);
-        const latestLog = taskLogs.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())[0];
+        const { logs: newLogs, latestAbsolutePage } = recalculateTaskLogs(updatedLogs, task);
+        updatedLogs = newLogs;
         return {
           ...task,
-          currentPage: latestLog ? latestLog.absolutePage : (task.startPage - 1),
-          isCompleted: latestLog ? latestLog.absolutePage >= task.endPage : false
+          currentPage: latestAbsolutePage,
+          isCompleted: latestAbsolutePage >= task.endPage
         };
       });
-      return { ...prev, logs: filteredLogs, tasks: updatedTasks };
+      return { ...prev, logs: updatedLogs, tasks: updatedTasks };
     });
     setSelectedLogs([]);
   };
@@ -245,44 +274,44 @@ export default function App() {
     const pagesReadInput = parseInt(newPageInput);
     if (isNaN(pagesReadInput) || pagesReadInput <= 0) return;
 
-    // Find the state of the task at the selected date to determine the base page
-    const logsBeforeDate = data.logs
-      .filter(l => l.taskId === activeTask.id && new Date(l.date) < new Date(new Date(newLogDate).setHours(23, 59, 59, 999)))
-      .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+    // Check if adding these pages exceeds the task's end page
+    const totalPagesRead = activeTaskLogs.reduce((sum, log) => sum + log.pagesRead, 0);
+    const remainingPages = (activeTask.endPage - activeTask.startPage + 1) - totalPagesRead;
     
-    const basePage = logsBeforeDate.length > 0 ? logsBeforeDate[0].absolutePage : (activeTask.startPage - 1);
-    const absolutePage = Math.min(activeTask.endPage, basePage + pagesReadInput);
-    const actualPagesRead = absolutePage - basePage;
-
-    if (actualPagesRead <= 0) {
+    if (remainingPages <= 0) {
       playDelete();
-      setErrorMessage("Bu tarih için girilen sayfa sayısı mevcut ilerlemenin gerisinde veya geçersiz.");
+      setErrorMessage("Bu görev zaten tamamlanmış.");
       return;
     }
 
+    const actualPagesRead = Math.min(pagesReadInput, remainingPages);
+
     playSuccess();
+
+    // To handle multiple logs on the same day correctly, we append the current time to the selected date
+    const now = new Date();
+    const selectedDate = new Date(newLogDate);
+    selectedDate.setHours(now.getHours(), now.getMinutes(), now.getSeconds(), now.getMilliseconds());
 
     const newLog: ReadingLog = {
       id: crypto.randomUUID(),
       taskId: activeTask.id,
-      date: new Date(newLogDate).toISOString(),
+      date: selectedDate.toISOString(),
       pagesRead: actualPagesRead,
-      absolutePage: absolutePage,
+      absolutePage: 0, // Will be recalculated
     };
 
     setData(prev => {
-      const newLogs = [newLog, ...prev.logs];
-      // Update task's current page based on the absolute latest log for this task
-      const taskLogs = newLogs.filter(l => l.taskId === activeTask.id);
-      const latestLog = taskLogs.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())[0];
+      const allLogs = [newLog, ...prev.logs];
+      const { logs: newLogs, latestAbsolutePage } = recalculateTaskLogs(allLogs, activeTask);
       
       return {
         ...prev,
         logs: newLogs,
         tasks: prev.tasks.map(t => t.id === activeTask.id ? {
           ...t,
-          currentPage: latestLog.absolutePage,
-          isCompleted: latestLog.absolutePage >= t.endPage
+          currentPage: latestAbsolutePage,
+          isCompleted: latestAbsolutePage >= t.endPage
         } : t)
       };
     });
@@ -295,16 +324,15 @@ export default function App() {
     playDelete();
     setData(prev => {
       const filteredLogs = prev.logs.filter(log => log.id !== id);
-      const taskLogs = filteredLogs.filter(l => l.taskId === activeTask.id);
-      const latestLog = taskLogs.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())[0];
+      const { logs: newLogs, latestAbsolutePage } = recalculateTaskLogs(filteredLogs, activeTask);
       
       return {
         ...prev,
-        logs: filteredLogs,
+        logs: newLogs,
         tasks: prev.tasks.map(t => t.id === activeTask.id ? {
           ...t,
-          currentPage: latestLog ? latestLog.absolutePage : (t.startPage - 1),
-          isCompleted: latestLog ? latestLog.absolutePage >= t.endPage : false
+          currentPage: latestAbsolutePage,
+          isCompleted: latestAbsolutePage >= t.endPage
         } : t)
       };
     });
@@ -381,8 +409,47 @@ export default function App() {
 
   const resetData = () => {
     playDelete();
-    localStorage.clear();
-    window.location.href = window.location.origin;
+    const initialTaskId = crypto.randomUUID();
+    const initialTask: HatimTask = {
+      id: initialTaskId,
+      name: "Tam Hatim",
+      startPage: 1,
+      endPage: QURAN_TOTAL_PAGES,
+      currentPage: 0,
+      isCompleted: false,
+      createdAt: new Date().toISOString()
+    };
+    
+    setData({
+      activeTaskId: initialTaskId,
+      tasks: [initialTask],
+      logs: [],
+    });
+    setIsResetConfirmOpen(false);
+    setActiveView('home');
+  };
+
+  const handleDeleteAccount = async () => {
+    if (!user) return;
+    try {
+      playDelete();
+      // First delete data from Firestore
+      await deleteDoc(doc(db, 'users', user.uid));
+      // Then delete user account
+      await deleteUser(user);
+      
+      // Reset local data
+      resetData();
+      setIsDeleteAccountConfirmOpen(false);
+    } catch (error: any) {
+      console.error("Error deleting account:", error);
+      if (error.code === 'auth/requires-recent-login') {
+        setErrorMessage("Hesabınızı silmek için güvenlik nedeniyle yeniden giriş yapmanız gerekmektedir. Lütfen çıkış yapıp tekrar giriş yapın ve tekrar deneyin.");
+      } else {
+        setErrorMessage("Hesap silinirken bir hata oluştu: " + error.message);
+      }
+      setIsDeleteAccountConfirmOpen(false);
+    }
   };
 
   // Views
@@ -749,11 +816,21 @@ export default function App() {
           </p>
           <button 
             onClick={() => { playClick(); setIsResetConfirmOpen(true); }}
-            className="w-full py-4 text-red-600 font-bold bg-red-50 rounded-2xl hover:bg-red-100 transition-colors flex items-center justify-center gap-2"
+            className="w-full py-4 text-red-600 font-bold bg-red-50 rounded-2xl hover:bg-red-100 transition-colors flex items-center justify-center gap-2 mb-4"
           >
             <RotateCcw size={18} />
             Tüm Verileri Sıfırla
           </button>
+          
+          {user && (
+            <button 
+              onClick={() => { playClick(); setIsDeleteAccountConfirmOpen(true); }}
+              className="w-full py-4 text-white font-bold bg-red-600 rounded-2xl hover:bg-red-700 transition-colors flex items-center justify-center gap-2"
+            >
+              <Trash2 size={18} />
+              Hesabı Sil
+            </button>
+          )}
         </section>
       </div>
 
@@ -1174,6 +1251,49 @@ export default function App() {
               >
                 Tamam
               </button>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
+
+      {/* Delete Account Confirm Modal */}
+      <AnimatePresence>
+        {isDeleteAccountConfirmOpen && (
+          <div className="fixed inset-0 z-[60] flex items-center justify-center p-4">
+            <motion.div 
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => { playClick(); setIsDeleteAccountConfirmOpen(false); }}
+              className="absolute inset-0 bg-sage-900/60 backdrop-blur-md"
+            />
+            <motion.div 
+              initial={{ scale: 0.9, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.9, opacity: 0 }}
+              className="bg-white w-full max-w-sm rounded-3xl p-8 relative z-10 shadow-2xl text-center"
+            >
+              <div className="w-16 h-16 bg-red-50 text-red-500 rounded-full flex items-center justify-center mx-auto mb-6">
+                <Trash2 size={32} />
+              </div>
+              <h3 className="text-xl font-bold text-sage-800 mb-2">Hesabı Sil?</h3>
+              <p className="text-sage-500 text-sm mb-8">
+                Hesabınızı ve buluttaki tüm verilerinizi kalıcı olarak silmek istediğinize emin misiniz? Bu işlem geri alınamaz.
+              </p>
+              <div className="space-y-3">
+                <button 
+                  onClick={handleDeleteAccount}
+                  className="w-full bg-red-600 text-white rounded-2xl py-4 font-bold shadow-lg shadow-red-100 hover:bg-red-700 transition-all active:scale-95"
+                >
+                  Evet, Hesabı Sil
+                </button>
+                <button 
+                  onClick={() => { playClick(); setIsDeleteAccountConfirmOpen(false); }}
+                  className="w-full bg-sage-50 text-sage-600 rounded-2xl py-4 font-bold hover:bg-sage-100 transition-all"
+                >
+                  Vazgeç
+                </button>
+              </div>
             </motion.div>
           </div>
         )}
