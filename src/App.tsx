@@ -41,7 +41,7 @@ import { AuthModal } from './components/AuthModal';
 import { syncDataToFirebase, listenToFirebaseData } from './services/db';
 import { auth } from './lib/firebase';
 import { signOut, deleteUser, updatePassword, EmailAuthProvider, reauthenticateWithCredential, sendPasswordResetEmail, linkWithPopup, GithubAuthProvider, OAuthProvider, GoogleAuthProvider, FacebookAuthProvider } from 'firebase/auth';
-import { doc, deleteDoc } from 'firebase/firestore';
+import { doc, deleteDoc, updateDoc } from 'firebase/firestore';
 import { db } from './lib/firebase';
 import { QRCodeSVG } from 'qrcode.react';
 import { getFirebaseErrorMessage } from './lib/firebaseErrors';
@@ -112,18 +112,20 @@ export default function App() {
 
   const { user, profile, loading: authLoading } = useAuth();
   const [editUsername, setEditUsername] = useState(profile?.username || '');
+  const [editPhoto, setEditPhoto] = useState(profile?.photoURL || '');
   const { theme, setTheme } = useTheme();
 
   const handleSaveUsername = async () => {
-    if (!user || !editUsername) return;
+    if (!user) return;
     try {
       await updateDoc(doc(db, 'users', user.uid), {
-        username: editUsername.toLowerCase()
+        username: editUsername.toLowerCase(),
+        photoURL: editPhoto
       });
-      alert('Kullanıcı adı güncellendi!');
+      alert('Profil güncellendi!');
     } catch (e) {
-      console.error("Error updating username", e);
-      alert('Kullanıcı adı güncellenirken hata oluştu.');
+      console.error("Error updating profile", e);
+      alert('Profil güncellenirken hata oluştu.');
     }
   };
   
@@ -1089,19 +1091,30 @@ export default function App() {
       <div className="space-y-4">
         <section className="bg-white dark:bg-neutral-900 rounded-3xl p-6 border border-sage-100 dark:border-neutral-800 shadow-sm">
           <h3 className="text-sm font-bold text-sage-500 dark:text-neutral-400 uppercase tracking-widest mb-4">Profil Bilgileri</h3>
-          <div className="flex flex-col gap-2">
-            <label className="text-xs font-bold text-sage-600 dark:text-sage-300">Kullanıcı Adı</label>
-            <input 
-              type="text" 
-              value={editUsername}
-              onChange={(e) => setEditUsername(e.target.value)}
-              className="w-full bg-white dark:bg-neutral-800 border border-sage-100 dark:border-neutral-700 rounded-2xl px-4 py-3 focus:border-sage-500 focus:outline-none transition-all"
-            />
+          <div className="flex flex-col gap-4">
+            <div className="flex flex-col gap-2">
+              <label className="text-xs font-bold text-sage-600 dark:text-sage-300">Kullanıcı Adı</label>
+              <input 
+                type="text" 
+                value={editUsername}
+                onChange={(e) => setEditUsername(e.target.value)}
+                className="w-full bg-white dark:bg-neutral-800 border border-sage-100 dark:border-neutral-700 rounded-2xl px-4 py-3 focus:border-sage-500 focus:outline-none transition-all"
+              />
+            </div>
+            <div className="flex flex-col gap-2">
+              <label className="text-xs font-bold text-sage-600 dark:text-sage-300">Profil Fotoğrafı URL</label>
+              <input 
+                type="text" 
+                value={editPhoto}
+                onChange={(e) => setEditPhoto(e.target.value)}
+                className="w-full bg-white dark:bg-neutral-800 border border-sage-100 dark:border-neutral-700 rounded-2xl px-4 py-3 focus:border-sage-500 focus:outline-none transition-all"
+              />
+            </div>
             <button 
               onClick={handleSaveUsername}
               className="bg-sage-600 text-white py-2 rounded-xl font-bold hover:bg-sage-700 transition-colors"
             >
-              Kullanıcı Adını Kaydet
+              Profil Bilgilerini Kaydet
             </button>
           </div>
         </section>
