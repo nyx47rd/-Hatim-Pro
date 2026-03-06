@@ -36,7 +36,7 @@ import { useAuth } from './contexts/AuthContext';
 import { AuthModal } from './components/AuthModal';
 import { syncDataToFirebase, listenToFirebaseData } from './services/db';
 import { auth } from './lib/firebase';
-import { signOut, deleteUser, updatePassword, EmailAuthProvider, reauthenticateWithCredential, sendPasswordResetEmail, linkWithPopup, GithubAuthProvider, OAuthProvider } from 'firebase/auth';
+import { signOut, deleteUser, updatePassword, EmailAuthProvider, reauthenticateWithCredential, sendPasswordResetEmail, linkWithPopup, GithubAuthProvider, OAuthProvider, GoogleAuthProvider, FacebookAuthProvider } from 'firebase/auth';
 import { doc, deleteDoc } from 'firebase/firestore';
 import { db } from './lib/firebase';
 import { QRCodeSVG } from 'qrcode.react';
@@ -192,6 +192,10 @@ export default function App() {
         provider = new GithubAuthProvider();
       } else if (providerId === 'microsoft.com') {
         provider = new OAuthProvider('microsoft.com');
+      } else if (providerId === 'google.com') {
+        provider = new GoogleAuthProvider();
+      } else if (providerId === 'facebook.com') {
+        provider = new FacebookAuthProvider();
       } else {
         throw new Error('Geçersiz sağlayıcı.');
       }
@@ -1238,6 +1242,44 @@ export default function App() {
                     {linkError && <p className="text-xs text-red-600">{linkError}</p>}
                     {linkSuccess && <p className="text-xs text-emerald-600 dark:text-emerald-400">{linkSuccess}</p>}
                     
+                    {/* Google */}
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                         <span className="font-semibold text-sage-700 dark:text-neutral-300 text-sm">Google</span>
+                         {user.providerData.some(p => p.providerId === 'google.com') && (
+                           <span className="text-[10px] bg-emerald-100 dark:bg-neutral-700 text-emerald-700 dark:text-emerald-400 px-2 py-0.5 rounded-full font-bold">Bağlı</span>
+                         )}
+                      </div>
+                      {!user.providerData.some(p => p.providerId === 'google.com') && (
+                        <button 
+                          onClick={() => handleLinkAccount('google.com')}
+                          disabled={isLinking}
+                          className="text-xs bg-sage-100 dark:bg-neutral-800 hover:bg-sage-200 dark:hover:bg-neutral-700 text-sage-700 dark:text-white font-bold px-3 py-1.5 rounded-lg transition-colors"
+                        >
+                          Bağla
+                        </button>
+                      )}
+                    </div>
+
+                    {/* Facebook */}
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                         <span className="font-semibold text-sage-700 dark:text-neutral-300 text-sm">Facebook</span>
+                         {user.providerData.some(p => p.providerId === 'facebook.com') && (
+                           <span className="text-[10px] bg-emerald-100 dark:bg-neutral-700 text-emerald-700 dark:text-emerald-400 px-2 py-0.5 rounded-full font-bold">Bağlı</span>
+                         )}
+                      </div>
+                      {!user.providerData.some(p => p.providerId === 'facebook.com') && (
+                        <button 
+                          onClick={() => handleLinkAccount('facebook.com')}
+                          disabled={isLinking}
+                          className="text-xs bg-sage-100 dark:bg-neutral-800 hover:bg-sage-200 dark:hover:bg-neutral-700 text-sage-700 dark:text-white font-bold px-3 py-1.5 rounded-lg transition-colors"
+                        >
+                          Bağla
+                        </button>
+                      )}
+                    </div>
+
                     {/* Github */}
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-2">
