@@ -1,5 +1,5 @@
 import { initializeApp } from 'firebase/app';
-import { getAuth, GithubAuthProvider, OAuthProvider, FacebookAuthProvider } from 'firebase/auth';
+import { getAuth, GithubAuthProvider, OAuthProvider, FacebookAuthProvider, GoogleAuthProvider } from 'firebase/auth';
 import { getFirestore } from 'firebase/firestore';
 
 const firebaseConfig = {
@@ -15,6 +15,8 @@ const app = initializeApp(firebaseConfig);
 export const auth = getAuth(app);
 auth.languageCode = 'tr';
 export const db = getFirestore(app);
+
+export const googleProvider = new GoogleAuthProvider();
 
 export const githubProvider = new GithubAuthProvider();
 githubProvider.addScope('read:user');
