@@ -24,3 +24,16 @@ export interface HatimData {
   mfaEnabled?: boolean;
   totpSecret?: string;
 }
+
+export interface AppNotification {
+  id: string;
+  userId: string;
+  type: 'zikir_invite';
+  senderId: string;
+  senderName: string;
+  sessionId: string;
+  sessionName: string;
+  createdAt: string;
+  read: boolean;
+  status: 'pending' | 'accepted' | 'declined';
+}

@@ -259,9 +259,9 @@ export const ProfilePage: React.FC<ProfilePageProps> = ({ username, onBack, play
           <div className="bg-white/5 rounded-3xl p-6 border border-white/10">
             <div className="flex items-center gap-3 mb-2 text-white/60">
               <BookOpen size={18} />
-              <span className="text-xs font-bold uppercase tracking-wider">Hatim</span>
+              <span className="text-xs font-bold uppercase tracking-wider">Okunan Sayfa</span>
             </div>
-            <p className="text-2xl font-bold">{profile?.stats?.totalHatim || 0}</p>
+            <p className="text-2xl font-bold">{profile?.stats?.totalReadPages || 0}</p>
           </div>
           <div className="bg-white/5 rounded-3xl p-6 border border-white/10">
             <div className="flex items-center gap-3 mb-2 text-white/60">
@@ -269,13 +269,6 @@ export const ProfilePage: React.FC<ProfilePageProps> = ({ username, onBack, play
               <span className="text-xs font-bold uppercase tracking-wider">Zikir</span>
             </div>
             <p className="text-2xl font-bold">{profile?.stats?.totalZikir || 0}</p>
-          </div>
-          <div className="col-span-2 bg-white/5 rounded-3xl p-6 border border-white/10">
-            <div className="flex items-center gap-3 mb-2 text-white/60">
-              <BookOpen size={18} />
-              <span className="text-xs font-bold uppercase tracking-wider">Okunan Sayfa</span>
-            </div>
-            <p className="text-2xl font-bold">{profile?.stats?.totalReadPages || 0}</p>
           </div>
         </div>
       </div>

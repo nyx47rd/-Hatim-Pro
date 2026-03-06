@@ -42,7 +42,7 @@ import { AuthModal } from './components/AuthModal';
 import { syncDataToFirebase, listenToFirebaseData } from './services/db';
 import { auth, db, storage } from './lib/firebase';
 import { signOut, deleteUser, updatePassword, EmailAuthProvider, reauthenticateWithCredential, sendPasswordResetEmail, linkWithPopup, GithubAuthProvider, OAuthProvider, GoogleAuthProvider, FacebookAuthProvider } from 'firebase/auth';
-import { doc, deleteDoc, updateDoc } from 'firebase/firestore';
+import { doc, deleteDoc, updateDoc, query, where, collection, onSnapshot } from 'firebase/firestore';
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { QRCodeSVG } from 'qrcode.react';
 import { getFirebaseErrorMessage } from './lib/firebaseErrors';
@@ -92,6 +92,7 @@ const recalculateTaskLogs = (logs: ReadingLog[], task: HatimTask) => {
 
 import { ZikirPage } from './components/ZikirPage';
 import { ProfilePage } from './components/ProfilePage';
+import { NotificationsPanel } from './components/NotificationsPanel';
 
 type View = 'home' | 'tasks' | 'history' | 'settings' | 'zikir' | 'profile';
 
@@ -103,6 +104,8 @@ export default function App() {
     }
     return 'home';
   });
+  const [isNotificationsOpen, setIsNotificationsOpen] = useState(false);
+  const [zikirJoinSessionId, setZikirJoinSessionId] = useState<string | null>(null);
   const [profileUsername, setProfileUsername] = useState<string | undefined>(() => {
     const path = window.location.pathname;
     if (path.startsWith('/@')) {
@@ -112,6 +115,21 @@ export default function App() {
   });
 
   const { user, profile, loading: authLoading } = useAuth();
+  
+  const [unreadNotifications, setUnreadNotifications] = useState(0);
+
+  useEffect(() => {
+    if (!user) {
+      setUnreadNotifications(0);
+      return;
+    }
+    const q = query(collection(db, 'notifications'), where('userId', '==', user.uid), where('read', '==', false));
+    const unsubscribe = onSnapshot(q, (snapshot) => {
+      setUnreadNotifications(snapshot.docs.length);
+    });
+    return () => unsubscribe();
+  }, [user]);
+
   const [editUsername, setEditUsername] = useState(profile?.username || '');
   const [editPhoto, setEditPhoto] = useState(profile?.photoURL || '');
   const { theme, setTheme } = useTheme();
@@ -1718,11 +1736,13 @@ export default function App() {
                 </h1>
                 <div className="flex items-center gap-2">
                   <button 
-                    onClick={() => { playClick(); alert('Bildirimler yakında eklenecek!'); }}
+                    onClick={() => { playClick(); setIsNotificationsOpen(true); }}
                     className="relative p-2 text-sage-600 dark:text-sage-400 hover:bg-sage-100 dark:hover:bg-neutral-800 rounded-full transition-colors"
                   >
                     <Bell size={24} />
-                    <span className="absolute top-1 right-1 w-2.5 h-2.5 bg-red-500 rounded-full border-2 border-white dark:border-neutral-900"></span>
+                    {unreadNotifications > 0 && (
+                      <span className="absolute top-1 right-1 w-2.5 h-2.5 bg-red-500 rounded-full border-2 border-white dark:border-neutral-900"></span>
+                    )}
                   </button>
                 </div>
               </div>
@@ -1769,7 +1789,14 @@ export default function App() {
               )}
               {activeView === 'zikir' && (
                 <div className="fixed inset-0 z-50 bg-black">
-                  <ZikirPage onBack={() => setActiveView('home')} playClick={playClick} />
+                  <ZikirPage 
+                    onBack={() => {
+                      setActiveView('home');
+                      setZikirJoinSessionId(null);
+                    }} 
+                    playClick={playClick} 
+                    joinSessionId={zikirJoinSessionId}
+                  />
                 </div>
               )}
             </main>
@@ -2246,6 +2273,16 @@ export default function App() {
           </div>
         )}
       </AnimatePresence>
+
+      <NotificationsPanel 
+        isOpen={isNotificationsOpen} 
+        onClose={() => setIsNotificationsOpen(false)} 
+        onJoinSession={(sessionId) => {
+          setZikirJoinSessionId(sessionId);
+          setActiveView('zikir');
+        }}
+        playClick={playClick}
+      />
     </div>
   );
 }
