@@ -1,5 +1,5 @@
 import { initializeApp } from 'firebase/app';
-import { getAuth, GithubAuthProvider, OAuthProvider } from 'firebase/auth';
+import { getAuth, GithubAuthProvider, OAuthProvider, FacebookAuthProvider } from 'firebase/auth';
 import { getFirestore } from 'firebase/firestore';
 
 const firebaseConfig = {
@@ -18,3 +18,4 @@ export const db = getFirestore(app);
 
 export const githubProvider = new GithubAuthProvider();
 export const microsoftProvider = new OAuthProvider('microsoft.com');
+export const facebookProvider = new FacebookAuthProvider();

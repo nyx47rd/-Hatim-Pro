@@ -1222,62 +1222,7 @@ export default function App() {
                 </AnimatePresence>
               </div>
 
-              {/* Reset Password */}
-              <div className="border border-sage-100 dark:border-sage-200 rounded-2xl overflow-hidden">
-                <button
-                  onClick={() => setIsResettingPassword(!isResettingPassword)}
-                  className="w-full flex items-center justify-between p-4 bg-sage-50 dark:bg-sage-200 hover:bg-sage-100 dark:hover:bg-sage-300 transition-colors"
-                >
-                  <div className="flex items-center gap-3">
-                    <div className="bg-white dark:bg-sage-100 p-2 rounded-lg text-sage-600 dark:text-sage-400 shadow-sm">
-                      <Mail size={20} />
-                    </div>
-                    <span className="font-bold text-sage-800 dark:text-sage-100">Şifre Sıfırlama Bağlantısı Gönder</span>
-                  </div>
-                  <ChevronRight size={20} className={`text-sage-400 transition-transform ${isResettingPassword ? 'rotate-90' : ''}`} />
-                </button>
-                
-                <AnimatePresence>
-                  {isResettingPassword && (
-                    <motion.div
-                      initial={{ height: 0, opacity: 0 }}
-                      animate={{ height: 'auto', opacity: 1 }}
-                      exit={{ height: 0, opacity: 0 }}
-                      className="overflow-hidden"
-                    >
-                      <form onSubmit={handleSendPasswordReset} className="p-4 bg-white dark:bg-sage-100 space-y-4 border-t border-sage-100 dark:border-sage-200">
-                        {passwordResetError && <p className="text-xs text-red-600">{passwordResetError}</p>}
-                        {passwordResetSuccess && <p className="text-xs text-emerald-600 dark:text-sage-300">{passwordResetSuccess}</p>}
-                        
-                        <p className="text-sm text-sage-600">
-                          Kayıtlı e-posta adresinize ({user.email}) bir şifre sıfırlama bağlantısı gönderilecektir.
-                        </p>
 
-                        {isMfaEnrolled && (
-                          <div>
-                            <label className="block text-xs font-bold text-sage-600 mb-1">2FA Kodu</label>
-                            <input
-                              type="text"
-                              value={passwordResetTotp}
-                              onChange={(e) => setPasswordResetTotp(e.target.value)}
-                              required
-                              maxLength={6}
-                              placeholder="000000"
-                              className="w-full px-3 py-2 bg-sage-50 border border-sage-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-sage-500 text-sm font-mono tracking-widest"
-                            />
-                          </div>
-                        )}
-                        <button
-                          type="submit"
-                          className="w-full bg-sage-600 hover:bg-sage-700 text-white font-bold py-2 rounded-xl transition-colors text-sm"
-                        >
-                          Bağlantıyı Gönder
-                        </button>
-                      </form>
-                    </motion.div>
-                  )}
-                </AnimatePresence>
-              </div>
 
               {/* Account Linking */}
               <div className="border border-sage-100 dark:border-neutral-800 rounded-2xl overflow-hidden mt-4">
