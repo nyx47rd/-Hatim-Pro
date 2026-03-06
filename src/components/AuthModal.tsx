@@ -132,28 +132,28 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
             <div className="p-8">
               {isResetPassword ? (
                 <>
-                  <button onClick={() => { setIsResetPassword(false); setError(null); setSuccessMsg(null); }} className="mb-4 text-sage-500 hover:text-sage-700 flex items-center gap-1 text-sm font-medium">
+                  <button onClick={() => { setIsResetPassword(false); setError(null); setSuccessMsg(null); }} className="mb-4 text-sage-500 dark:text-sage-400 hover:text-sage-700 dark:hover:text-sage-200 flex items-center gap-1 text-sm font-medium">
                     <ArrowLeft size={16} /> Geri
                   </button>
-                  <h2 className="text-2xl font-bold text-sage-800 mb-2">Şifremi Unuttum</h2>
-                  <p className="text-sage-500 mb-6 text-sm">
+                  <h2 className="text-2xl font-bold text-sage-800 dark:text-sage-100 mb-2">Şifremi Unuttum</h2>
+                  <p className="text-sage-500 dark:text-sage-400 mb-6 text-sm">
                     E-posta adresinizi girin, size şifre sıfırlama bağlantısı gönderelim.
                   </p>
 
                   {error && (
-                    <div className="bg-red-50 text-red-600 p-3 rounded-xl text-sm mb-4">
+                    <div className="bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 p-3 rounded-xl text-sm mb-4">
                       {error}
                     </div>
                   )}
                   {successMsg && (
-                    <div className="bg-green-50 text-green-600 p-3 rounded-xl text-sm mb-4">
+                    <div className="bg-green-50 dark:bg-green-900/20 text-green-600 dark:text-green-400 p-3 rounded-xl text-sm mb-4">
                       {successMsg}
                     </div>
                   )}
 
                   <form onSubmit={handlePasswordReset} className="space-y-4">
                     <div>
-                      <label className="block text-sm font-semibold text-sage-700 mb-1">E-posta</label>
+                      <label className="block text-sm font-semibold text-sage-700 dark:text-sage-300 mb-1">E-posta</label>
                       <div className="relative">
                         <Mail className="absolute left-3 top-1/2 -translate-y-1/2 text-sage-400" size={18} />
                         <input
@@ -161,7 +161,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
                           value={email}
                           onChange={(e) => setEmail(e.target.value)}
                           required
-                          className="w-full pl-10 pr-4 py-3 bg-sage-50 border border-sage-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-sage-500 transition-all"
+                          className="w-full pl-10 pr-4 py-3 bg-sage-50 dark:bg-sage-50 border border-sage-200 dark:border-sage-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-sage-500 transition-all dark:text-white"
                           placeholder="ornek@email.com"
                         />
                       </div>
@@ -177,24 +177,24 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
                 </>
               ) : (
                 <>
-                  <h2 className="text-2xl font-bold text-sage-800 mb-2">
+                  <h2 className="text-2xl font-bold text-sage-800 dark:text-sage-100 mb-2">
                     {isLogin ? 'Giriş Yap' : 'Kayıt Ol'}
                   </h2>
-                  <p className="text-sage-500 mb-6 text-sm">
+                  <p className="text-sage-500 dark:text-sage-400 mb-6 text-sm">
                     {isLogin 
                       ? 'Verilerinizi eşitlemek için giriş yapın.' 
                       : 'Cihazlar arası eşitleme için hesap oluşturun.'}
                   </p>
 
                   {error && (
-                    <div className="bg-red-50 text-red-600 p-3 rounded-xl text-sm mb-4">
+                    <div className="bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 p-3 rounded-xl text-sm mb-4">
                       {error}
                     </div>
                   )}
 
                   <form onSubmit={handleSubmit} className="space-y-4">
                     <div>
-                      <label className="block text-sm font-semibold text-sage-700 mb-1">E-posta</label>
+                      <label className="block text-sm font-semibold text-sage-700 dark:text-sage-300 mb-1">E-posta</label>
                       <div className="relative">
                         <Mail className="absolute left-3 top-1/2 -translate-y-1/2 text-sage-400" size={18} />
                         <input
@@ -202,7 +202,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
                           value={email}
                           onChange={(e) => setEmail(e.target.value)}
                           required
-                          className="w-full pl-10 pr-4 py-3 bg-sage-50 border border-sage-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-sage-500 transition-all"
+                          className="w-full pl-10 pr-4 py-3 bg-sage-50 dark:bg-sage-50 border border-sage-200 dark:border-sage-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-sage-500 transition-all dark:text-white"
                           placeholder="ornek@email.com"
                         />
                       </div>
@@ -210,12 +210,12 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
 
                     <div>
                       <div className="flex justify-between items-center mb-1">
-                        <label className="block text-sm font-semibold text-sage-700">Şifre</label>
+                        <label className="block text-sm font-semibold text-sage-700 dark:text-sage-300">Şifre</label>
                         {isLogin && (
                           <button 
                             type="button"
                             onClick={() => { setIsResetPassword(true); setError(null); setSuccessMsg(null); }}
-                            className="text-xs text-sage-500 hover:text-sage-700 font-medium"
+                            className="text-xs text-sage-500 dark:text-sage-400 hover:text-sage-700 dark:hover:text-sage-200 font-medium"
                           >
                             Şifremi Unuttum
                           </button>
@@ -228,7 +228,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
                           value={password}
                           onChange={(e) => setPassword(e.target.value)}
                           required
-                          className="w-full pl-10 pr-4 py-3 bg-sage-50 border border-sage-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-sage-500 transition-all"
+                          className="w-full pl-10 pr-4 py-3 bg-sage-50 dark:bg-sage-50 border border-sage-200 dark:border-sage-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-sage-500 transition-all dark:text-white"
                           placeholder="••••••••"
                         />
                       </div>
@@ -251,9 +251,9 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
 
                   <div className="mt-6 flex flex-col gap-3">
                     <div className="relative flex items-center py-2">
-                      <div className="flex-grow border-t border-sage-200"></div>
+                      <div className="flex-grow border-t border-sage-200 dark:border-sage-300"></div>
                       <span className="flex-shrink-0 mx-4 text-sage-400 text-sm">veya</span>
-                      <div className="flex-grow border-t border-sage-200"></div>
+                      <div className="flex-grow border-t border-sage-200 dark:border-sage-300"></div>
                     </div>
 
                     <button
@@ -267,7 +267,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
                     <button
                       onClick={handleMicrosoftLogin}
                       disabled={loading}
-                      className="w-full bg-white border border-sage-200 hover:bg-sage-50 text-sage-800 font-semibold py-3 rounded-xl transition-colors flex items-center justify-center gap-2"
+                      className="w-full bg-white dark:bg-sage-200 border border-sage-200 dark:border-sage-300 hover:bg-sage-50 dark:hover:bg-sage-300 text-sage-800 dark:text-sage-100 font-semibold py-3 rounded-xl transition-colors flex items-center justify-center gap-2"
                     >
                       <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 21 21">
                         <path fill="#f25022" d="M1 1h9v9H1z"/>
@@ -285,7 +285,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
                         setIsLogin(!isLogin);
                         setError(null);
                       }}
-                      className="text-sage-600 text-sm font-semibold hover:underline"
+                      className="text-sage-600 dark:text-sage-400 text-sm font-semibold hover:underline"
                     >
                       {isLogin ? 'Hesabınız yok mu? Kayıt olun.' : 'Zaten hesabınız var mı? Giriş yapın.'}
                     </button>

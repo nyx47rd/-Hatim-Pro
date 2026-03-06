@@ -765,14 +765,14 @@ export default function App() {
         
         <div className="flex justify-between items-end mb-6">
           <div>
-            <span className="text-sm font-semibold uppercase tracking-wider text-sage-500">İlerleme</span>
+            <span className="text-sm font-semibold uppercase tracking-wider text-sage-500 dark:text-sage-500">İlerleme</span>
             <div className="flex items-baseline gap-2 mt-1">
-              <span className="text-5xl font-bold text-sage-800">{progress.toFixed(1)}%</span>
+              <span className="text-5xl font-bold text-sage-800 dark:text-white">{progress.toFixed(1)}%</span>
             </div>
           </div>
           <div className="text-right">
-            <span className="text-sm font-semibold uppercase tracking-wider text-sage-500">Mevcut Sayfa</span>
-            <div className="text-2xl font-bold text-sage-700">
+            <span className="text-sm font-semibold uppercase tracking-wider text-sage-500 dark:text-sage-500">Mevcut Sayfa</span>
+            <div className="text-2xl font-bold text-sage-700 dark:text-sage-200">
               {activeTask.currentPage || activeTask.startPage} <span className="text-sage-300 font-normal">/</span> {activeTask.endPage}
             </div>
           </div>
@@ -788,22 +788,22 @@ export default function App() {
         </div>
         
         <div className="mt-6 grid grid-cols-2 gap-4">
-          <div className="bg-sage-50 rounded-2xl p-4 flex items-center gap-3">
-            <div className="bg-white p-2 rounded-lg text-sage-600 shadow-sm">
+          <div className="bg-sage-50 dark:bg-sage-200 rounded-2xl p-4 flex items-center gap-3">
+            <div className="bg-white dark:bg-sage-100 p-2 rounded-lg text-sage-600 dark:text-sage-400 shadow-sm">
               <TrendingUp size={20} />
             </div>
             <div>
-              <p className="text-xs text-sage-500 font-semibold uppercase tracking-tighter">Kalan</p>
-              <p className="text-lg font-bold text-sage-800">{Math.max(0, totalPagesInRange - pagesReadInRange)}</p>
+              <p className="text-xs text-sage-500 dark:text-sage-500 font-semibold uppercase tracking-tighter">Kalan</p>
+              <p className="text-lg font-bold text-sage-800 dark:text-white">{Math.max(0, totalPagesInRange - pagesReadInRange)}</p>
             </div>
           </div>
-          <div className="bg-sage-50 rounded-2xl p-4 flex items-center gap-3">
-            <div className="bg-white p-2 rounded-lg text-sage-600 shadow-sm">
+          <div className="bg-sage-50 dark:bg-sage-200 rounded-2xl p-4 flex items-center gap-3">
+            <div className="bg-white dark:bg-sage-100 p-2 rounded-lg text-sage-600 dark:text-sage-400 shadow-sm">
               <CheckCircle2 size={20} />
             </div>
             <div>
-              <p className="text-xs text-sage-500 font-semibold uppercase tracking-tighter">Okunan</p>
-              <p className="text-lg font-bold text-sage-800">{pagesReadInRange}</p>
+              <p className="text-xs text-sage-500 dark:text-sage-500 font-semibold uppercase tracking-tighter">Okunan</p>
+              <p className="text-lg font-bold text-sage-800 dark:text-white">{pagesReadInRange}</p>
             </div>
           </div>
         </div>
@@ -855,8 +855,8 @@ export default function App() {
             </div>
           ))}
           {activeTaskLogs.length === 0 && (
-            <div className="bg-white/50 border border-dashed border-sage-300 rounded-2xl p-12 text-center">
-              <p className="text-sage-500 italic">Henüz bir kayıt bulunmuyor.</p>
+            <div className="bg-white/50 dark:bg-sage-100/50 border border-dashed border-sage-300 dark:border-sage-500 rounded-2xl p-12 text-center">
+              <p className="text-sage-500 dark:text-sage-400 italic">Henüz bir kayıt bulunmuyor.</p>
             </div>
           )}
         </div>
@@ -867,12 +867,12 @@ export default function App() {
   const renderTasks = () => (
     <div className="space-y-6 pb-24">
       <div className="flex items-center justify-between px-2">
-        <h2 className="text-2xl font-bold text-sage-800">Görevlerim</h2>
+        <h2 className="text-2xl font-bold text-sage-800 dark:text-white">Görevlerim</h2>
         <div className="flex items-center gap-2">
           {selectedTasks.length > 0 && (
             <button 
               onClick={handleBulkDeleteTasks}
-              className="bg-red-50 text-red-600 px-4 py-2 rounded-xl text-sm font-bold flex items-center gap-2 hover:bg-red-100 transition-colors"
+              className="bg-red-50 dark:bg-red-900/30 text-red-600 dark:text-red-400 px-4 py-2 rounded-xl text-sm font-bold flex items-center gap-2 hover:bg-red-100 dark:hover:bg-red-900/50 transition-colors"
             >
               <Trash2 size={16} />
               Sil ({selectedTasks.length})
@@ -880,7 +880,7 @@ export default function App() {
           )}
           <button 
             onClick={() => { playOpen(); setIsAddTaskOpen(true); }}
-            className="bg-sage-100 text-sage-600 p-2 rounded-full hover:bg-sage-200 transition-colors"
+            className="bg-sage-100 dark:bg-neutral-800 text-sage-600 dark:text-white p-2 rounded-full hover:bg-sage-200 dark:hover:bg-neutral-700 transition-colors"
           >
             <Plus size={24} />
           </button>
@@ -899,7 +899,7 @@ export default function App() {
             <motion.div 
               key={task.id}
               layout
-              className={`bg-white rounded-3xl p-6 border-2 transition-all flex items-start gap-4 ${isCurrent ? 'border-sage-500 shadow-md' : 'border-transparent shadow-sm'}`}
+              className={`bg-white dark:bg-neutral-900 rounded-3xl p-6 border-2 transition-all flex items-start gap-4 ${isCurrent ? 'border-sage-500 dark:border-white shadow-md' : 'border-transparent dark:border-neutral-800 shadow-sm'}`}
             >
               <button 
                 onClick={() => {
@@ -908,7 +908,7 @@ export default function App() {
                     prev.includes(task.id) ? prev.filter(id => id !== task.id) : [...prev, task.id]
                   );
                 }}
-                className={`mt-1 transition-colors ${selectedTasks.includes(task.id) ? 'text-sage-600' : 'text-sage-200'}`}
+                className={`mt-1 transition-colors ${selectedTasks.includes(task.id) ? 'text-sage-600 dark:text-white' : 'text-sage-200 dark:text-neutral-600'}`}
               >
                 {selectedTasks.includes(task.id) ? <CheckSquare size={22} /> : <Square size={22} />}
               </button>
@@ -916,28 +916,28 @@ export default function App() {
               <div className="flex-1">
                 <div className="flex justify-between items-start mb-4">
                   <div onClick={() => { playClick(); setData(prev => ({ ...prev, activeTaskId: task.id })); setActiveView('home'); }} className="cursor-pointer flex-1">
-                    <h3 className="text-lg font-bold text-sage-800 flex items-center gap-2">
+                    <h3 className="text-lg font-bold text-sage-800 dark:text-white flex items-center gap-2">
                       {task.name}
-                      {task.isCompleted && <CheckCircle2 size={18} className="text-emerald-500" />}
+                      {task.isCompleted && <CheckCircle2 size={18} className="text-emerald-500 dark:text-white" />}
                     </h3>
-                    <p className="text-sm text-sage-500">{task.startPage} - {task.endPage}. Sayfalar</p>
+                    <p className="text-sm text-sage-500 dark:text-neutral-400">{task.startPage} - {task.endPage}. Sayfalar</p>
                   </div>
                   <button 
                     onClick={() => deleteTask(task.id)}
-                    className="text-sage-200 hover:text-red-500 p-2"
+                    className="text-sage-200 hover:text-red-500 dark:text-neutral-600 dark:hover:text-red-400 p-2"
                   >
                     <Trash2 size={18} />
                   </button>
                 </div>
 
                 <div className="space-y-2">
-                  <div className="flex justify-between text-xs font-bold text-sage-500">
+                  <div className="flex justify-between text-xs font-bold text-sage-500 dark:text-neutral-400">
                     <span>{taskProgress.toFixed(1)}%</span>
                     <span>{taskPagesRead} / {taskTotalPages} Sayfa</span>
                   </div>
-                  <div className="h-2 bg-sage-50 rounded-full overflow-hidden">
+                  <div className="h-2 bg-sage-50 dark:bg-neutral-800 rounded-full overflow-hidden">
                     <div 
-                      className="h-full bg-sage-500 rounded-full transition-all duration-1000"
+                      className="h-full bg-sage-500 dark:bg-white rounded-full transition-all duration-1000"
                       style={{ width: `${taskProgress}%` }}
                     />
                   </div>
@@ -971,7 +971,7 @@ export default function App() {
           const isSelected = selectedLogs.includes(log.id);
 
           return (
-            <div key={log.id} className={`bg-white rounded-2xl p-4 border transition-all flex items-center gap-4 ${isSelected ? 'border-sage-500 bg-sage-50/30' : 'border-sage-100 shadow-sm'}`}>
+            <div key={log.id} className={`bg-white dark:bg-neutral-900 rounded-2xl p-4 border transition-all flex items-center gap-4 ${isSelected ? 'border-sage-500 dark:border-white bg-sage-50/30 dark:bg-neutral-800' : 'border-sage-100 dark:border-neutral-800 shadow-sm'}`}>
               <button 
                 onClick={() => {
                   playClick();
@@ -979,26 +979,29 @@ export default function App() {
                     prev.includes(log.id) ? prev.filter(id => id !== log.id) : [...prev, log.id]
                   );
                 }}
-                className={`transition-colors ${isSelected ? 'text-sage-600' : 'text-sage-200'}`}
+                className={`transition-colors ${isSelected ? 'text-sage-600 dark:text-white' : 'text-sage-200 dark:text-neutral-600'}`}
               >
                 {isSelected ? <CheckSquare size={22} /> : <Square size={22} />}
               </button>
 
               <div className="flex-1 flex items-center justify-between">
                 <div className="flex items-center gap-4">
-                  <div className="bg-sage-50 p-3 rounded-xl text-sage-600">
+                  <div className="bg-sage-50 dark:bg-neutral-800 p-3 rounded-xl text-sage-600 dark:text-white">
                     <Calendar size={20} />
                   </div>
                   <div>
-                    <p className="text-sm font-bold text-sage-800">
+                    <p className="text-sm font-bold text-sage-800 dark:text-white">
                       {new Date(log.date).toLocaleDateString('tr-TR', { day: 'numeric', month: 'long', year: 'numeric' })}
                     </p>
-                    <p className="text-xs text-sage-500">
-                      {task?.name || 'Silinmiş Görev'} • {log.pagesRead} sayfa • <span className="font-semibold text-sage-600">Sayfa {log.absolutePage}</span>
+                    <p className="text-xs text-sage-500 dark:text-neutral-400">
+                      {task?.name || 'Silinmiş Görev'} • {log.pagesRead} sayfa • <span className="font-semibold text-sage-600 dark:text-neutral-300">Sayfa {log.absolutePage}</span>
                     </p>
                   </div>
                 </div>
-                <button onClick={() => handleDeleteLog(log.id)} className="text-sage-200 hover:text-red-500 p-2">
+                <button 
+                  onClick={() => handleDeleteLog(log.id)}
+                  className="p-2 text-sage-200 hover:text-red-500 dark:text-neutral-600 dark:hover:text-red-400 opacity-0 group-hover:opacity-100 transition-opacity"
+                >
                   <Trash2 size={18} />
                 </button>
               </div>
@@ -1006,8 +1009,8 @@ export default function App() {
           );
         })}
         {data.logs.length === 0 && (
-          <div className="bg-white/50 border border-dashed border-sage-300 rounded-2xl p-12 text-center">
-            <p className="text-sage-500 italic">Henüz bir kayıt bulunmuyor.</p>
+          <div className="bg-white/50 dark:bg-neutral-900/50 border border-dashed border-sage-300 dark:border-neutral-700 rounded-2xl p-12 text-center">
+            <p className="text-sage-500 dark:text-neutral-400 italic">Henüz bir geçmiş kaydı bulunmuyor.</p>
           </div>
         )}
       </div>
@@ -1016,54 +1019,54 @@ export default function App() {
 
   const renderSettings = () => (
     <div className="space-y-8 pb-24">
-      <h2 className="text-2xl font-bold text-sage-800 px-2">Ayarlar</h2>
+      <h2 className="text-2xl font-bold text-sage-800 dark:text-white px-2">Ayarlar</h2>
       
       <div className="space-y-4">
-        <section className="bg-white rounded-3xl p-6 border border-sage-100 shadow-sm">
-          <h3 className="text-sm font-bold text-sage-500 uppercase tracking-widest mb-4">Hesap & Eşitleme</h3>
+        <section className="bg-white dark:bg-neutral-900 rounded-3xl p-6 border border-sage-100 dark:border-neutral-800 shadow-sm">
+          <h3 className="text-sm font-bold text-sage-500 dark:text-neutral-400 uppercase tracking-widest mb-4">Hesap & Eşitleme</h3>
           
           <div className="space-y-4">
             {user ? (
               <div className="flex flex-col gap-4">
                 <div className="flex items-center gap-3">
-                  <div className="bg-emerald-50 p-2 rounded-lg text-emerald-600">
+                  <div className="bg-emerald-50 dark:bg-neutral-800 p-2 rounded-lg text-emerald-600 dark:text-emerald-400">
                     <CheckCircle2 size={20} />
                   </div>
                   <div>
-                    <p className="font-bold text-sage-800">Giriş Yapıldı</p>
-                    <p className="text-xs text-sage-500">{user.email}</p>
+                    <p className="font-bold text-sage-800 dark:text-white">Giriş Yapıldı</p>
+                    <p className="text-xs text-sage-500 dark:text-neutral-400">{user.email}</p>
                   </div>
                 </div>
 
                 {/* 2FA Section */}
-                <div className="mt-4 p-4 bg-sage-50 rounded-2xl border border-sage-100">
+                <div className="mt-4 p-4 bg-sage-50 dark:bg-neutral-800 rounded-2xl border border-sage-100 dark:border-neutral-700">
                   <div className="flex items-center justify-between mb-2">
                     <div className="flex items-center gap-2">
-                      <Key size={18} className="text-sage-600" />
-                      <span className="font-bold text-sage-800 text-sm">İki Faktörlü Doğrulama (2FA)</span>
+                      <Key size={18} className="text-sage-600 dark:text-white" />
+                      <span className="font-bold text-sage-800 dark:text-white text-sm">İki Faktörlü Doğrulama (2FA)</span>
                     </div>
                     {isMfaEnrolled ? (
-                      <span className="text-xs font-bold text-emerald-600 bg-emerald-100 px-2 py-1 rounded-md">Aktif</span>
+                      <span className="text-xs font-bold text-emerald-600 dark:text-emerald-400 bg-emerald-100 dark:bg-neutral-700 px-2 py-1 rounded-md">Aktif</span>
                     ) : (
-                      <span className="text-xs font-bold text-sage-500 bg-sage-200 px-2 py-1 rounded-md">Pasif</span>
+                      <span className="text-xs font-bold text-sage-500 dark:text-neutral-400 bg-sage-200 dark:bg-neutral-700 px-2 py-1 rounded-md">Pasif</span>
                     )}
                   </div>
                   
                   {mfaError && <p className="text-xs text-red-600 mb-2">{mfaError}</p>}
-                  {mfaSuccess && <p className="text-xs text-emerald-600 mb-2">{mfaSuccess}</p>}
+                  {mfaSuccess && <p className="text-xs text-emerald-600 dark:text-sage-300 mb-2">{mfaSuccess}</p>}
 
                   {isEnrolling2FA && totpSecret ? (
                     <div className="mt-4 space-y-4">
                       <p className="text-xs text-sage-600">
                         1. Authenticator uygulamanızı (Google Authenticator, Authy vb.) açın ve aşağıdaki QR kodu okutun:
                       </p>
-                      <div className="bg-white dark:bg-sage-200 p-4 rounded-xl flex justify-center">
+                      <div className="bg-white p-4 rounded-xl flex justify-center">
                         <QRCodeSVG 
                           value={`otpauth://totp/Hatim%20Pro:${user.email || 'Kullanıcı'}?secret=${totpSecret}&issuer=Hatim%20Pro`} 
                           size={150} 
                         />
                       </div>
-                      <p className="text-xs text-sage-600 text-center font-mono bg-white dark:bg-sage-200 p-2 rounded-lg border border-sage-100">
+                      <p className="text-xs text-sage-600 dark:text-sage-300 text-center font-mono bg-white dark:bg-sage-800 p-2 rounded-lg border border-sage-100 dark:border-sage-700">
                         {totpSecret}
                       </p>
                       <p className="text-xs text-sage-600">
@@ -1130,21 +1133,21 @@ export default function App() {
         </section>
 
         {user && (
-          <section className="bg-white rounded-3xl p-6 border border-sage-100 shadow-sm">
-            <h3 className="text-sm font-bold text-sage-500 uppercase tracking-widest mb-4">Şifre İşlemleri</h3>
+          <section className="bg-white dark:bg-neutral-900 rounded-3xl p-6 border border-sage-100 dark:border-neutral-800 shadow-sm">
+            <h3 className="text-sm font-bold text-sage-500 dark:text-neutral-400 uppercase tracking-widest mb-4">Şifre İşlemleri</h3>
             
             <div className="space-y-4">
               {/* Change Password */}
-              <div className="border border-sage-100 rounded-2xl overflow-hidden">
+              <div className="border border-sage-100 dark:border-neutral-800 rounded-2xl overflow-hidden">
                 <button
                   onClick={() => setIsChangingPassword(!isChangingPassword)}
-                  className="w-full flex items-center justify-between p-4 bg-sage-50 hover:bg-sage-100 transition-colors"
+                  className="w-full flex items-center justify-between p-4 bg-sage-50 dark:bg-neutral-800 hover:bg-sage-100 dark:hover:bg-neutral-700 transition-colors"
                 >
                   <div className="flex items-center gap-3">
-                    <div className="bg-white p-2 rounded-lg text-sage-600 shadow-sm">
+                    <div className="bg-white dark:bg-neutral-700 p-2 rounded-lg text-sage-600 dark:text-white shadow-sm">
                       <Lock size={20} />
                     </div>
-                    <span className="font-bold text-sage-800">Şifre Değiştir</span>
+                    <span className="font-bold text-sage-800 dark:text-white">Şifre Değiştir</span>
                   </div>
                   <ChevronRight size={20} className={`text-sage-400 transition-transform ${isChangingPassword ? 'rotate-90' : ''}`} />
                 </button>
@@ -1157,18 +1160,18 @@ export default function App() {
                       exit={{ height: 0, opacity: 0 }}
                       className="overflow-hidden"
                     >
-                      <form onSubmit={handleChangePassword} className="p-4 bg-white space-y-4 border-t border-sage-100">
+                      <form onSubmit={handleChangePassword} className="p-4 bg-white dark:bg-neutral-900 space-y-4 border-t border-sage-100 dark:border-neutral-800">
                         {passwordChangeError && <p className="text-xs text-red-600">{passwordChangeError}</p>}
-                        {passwordChangeSuccess && <p className="text-xs text-emerald-600">{passwordChangeSuccess}</p>}
+                        {passwordChangeSuccess && <p className="text-xs text-emerald-600 dark:text-emerald-400">{passwordChangeSuccess}</p>}
                         
                         <div>
-                          <label className="block text-xs font-bold text-sage-600 mb-1">Mevcut Şifre</label>
+                          <label className="block text-xs font-bold text-sage-600 dark:text-neutral-400 mb-1">Mevcut Şifre</label>
                           <input
                             type="password"
                             value={currentPassword}
                             onChange={(e) => setCurrentPassword(e.target.value)}
                             required
-                            className="w-full px-3 py-2 bg-sage-50 border border-sage-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-sage-500 text-sm"
+                            className="w-full px-3 py-2 bg-sage-50 dark:bg-neutral-800 border border-sage-200 dark:border-neutral-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-sage-500 dark:text-white text-sm"
                           />
                         </div>
                         <div>
@@ -1220,16 +1223,16 @@ export default function App() {
               </div>
 
               {/* Reset Password */}
-              <div className="border border-sage-100 rounded-2xl overflow-hidden">
+              <div className="border border-sage-100 dark:border-sage-200 rounded-2xl overflow-hidden">
                 <button
                   onClick={() => setIsResettingPassword(!isResettingPassword)}
-                  className="w-full flex items-center justify-between p-4 bg-sage-50 hover:bg-sage-100 transition-colors"
+                  className="w-full flex items-center justify-between p-4 bg-sage-50 dark:bg-sage-200 hover:bg-sage-100 dark:hover:bg-sage-300 transition-colors"
                 >
                   <div className="flex items-center gap-3">
-                    <div className="bg-white p-2 rounded-lg text-sage-600 shadow-sm">
+                    <div className="bg-white dark:bg-sage-100 p-2 rounded-lg text-sage-600 dark:text-sage-400 shadow-sm">
                       <Mail size={20} />
                     </div>
-                    <span className="font-bold text-sage-800">Şifre Sıfırlama Bağlantısı Gönder</span>
+                    <span className="font-bold text-sage-800 dark:text-sage-100">Şifre Sıfırlama Bağlantısı Gönder</span>
                   </div>
                   <ChevronRight size={20} className={`text-sage-400 transition-transform ${isResettingPassword ? 'rotate-90' : ''}`} />
                 </button>
@@ -1242,9 +1245,9 @@ export default function App() {
                       exit={{ height: 0, opacity: 0 }}
                       className="overflow-hidden"
                     >
-                      <form onSubmit={handleSendPasswordReset} className="p-4 bg-white space-y-4 border-t border-sage-100">
+                      <form onSubmit={handleSendPasswordReset} className="p-4 bg-white dark:bg-sage-100 space-y-4 border-t border-sage-100 dark:border-sage-200">
                         {passwordResetError && <p className="text-xs text-red-600">{passwordResetError}</p>}
-                        {passwordResetSuccess && <p className="text-xs text-emerald-600">{passwordResetSuccess}</p>}
+                        {passwordResetSuccess && <p className="text-xs text-emerald-600 dark:text-sage-300">{passwordResetSuccess}</p>}
                         
                         <p className="text-sm text-sage-600">
                           Kayıtlı e-posta adresinize ({user.email}) bir şifre sıfırlama bağlantısı gönderilecektir.
@@ -1277,32 +1280,32 @@ export default function App() {
               </div>
 
               {/* Account Linking */}
-              <div className="border border-sage-100 rounded-2xl overflow-hidden mt-4">
-                 <div className="p-4 bg-sage-50 border-b border-sage-100">
+              <div className="border border-sage-100 dark:border-neutral-800 rounded-2xl overflow-hidden mt-4">
+                 <div className="p-4 bg-sage-50 dark:bg-neutral-800 border-b border-sage-100 dark:border-neutral-700">
                     <div className="flex items-center gap-3">
-                      <div className="bg-white p-2 rounded-lg text-sage-600 shadow-sm">
+                      <div className="bg-white dark:bg-neutral-700 p-2 rounded-lg text-sage-600 dark:text-white shadow-sm">
                         <Link size={20} />
                       </div>
-                      <span className="font-bold text-sage-800">Hesap Bağlantıları</span>
+                      <span className="font-bold text-sage-800 dark:text-white">Hesap Bağlantıları</span>
                     </div>
                  </div>
-                 <div className="p-4 bg-white dark:bg-sage-100 space-y-3">
+                 <div className="p-4 bg-white dark:bg-neutral-900 space-y-3">
                     {linkError && <p className="text-xs text-red-600">{linkError}</p>}
-                    {linkSuccess && <p className="text-xs text-emerald-600">{linkSuccess}</p>}
+                    {linkSuccess && <p className="text-xs text-emerald-600 dark:text-emerald-400">{linkSuccess}</p>}
                     
                     {/* Github */}
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-2">
-                         <span className="font-semibold text-sage-700 text-sm">GitHub</span>
+                         <span className="font-semibold text-sage-700 dark:text-neutral-300 text-sm">GitHub</span>
                          {user.providerData.some(p => p.providerId === 'github.com') && (
-                           <span className="text-[10px] bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded-full font-bold">Bağlı</span>
+                           <span className="text-[10px] bg-emerald-100 dark:bg-neutral-700 text-emerald-700 dark:text-emerald-400 px-2 py-0.5 rounded-full font-bold">Bağlı</span>
                          )}
                       </div>
                       {!user.providerData.some(p => p.providerId === 'github.com') && (
                         <button 
                           onClick={() => handleLinkAccount('github.com')}
                           disabled={isLinking}
-                          className="text-xs bg-sage-100 hover:bg-sage-200 text-sage-700 font-bold px-3 py-1.5 rounded-lg transition-colors"
+                          className="text-xs bg-sage-100 dark:bg-neutral-800 hover:bg-sage-200 dark:hover:bg-neutral-700 text-sage-700 dark:text-white font-bold px-3 py-1.5 rounded-lg transition-colors"
                         >
                           Bağla
                         </button>
@@ -1312,16 +1315,16 @@ export default function App() {
                     {/* Microsoft */}
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-2">
-                         <span className="font-semibold text-sage-700 text-sm">Microsoft</span>
+                         <span className="font-semibold text-sage-700 dark:text-neutral-300 text-sm">Microsoft</span>
                          {user.providerData.some(p => p.providerId === 'microsoft.com') && (
-                           <span className="text-[10px] bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded-full font-bold">Bağlı</span>
+                           <span className="text-[10px] bg-emerald-100 dark:bg-neutral-700 text-emerald-700 dark:text-emerald-400 px-2 py-0.5 rounded-full font-bold">Bağlı</span>
                          )}
                       </div>
                       {!user.providerData.some(p => p.providerId === 'microsoft.com') && (
                         <button 
                           onClick={() => handleLinkAccount('microsoft.com')}
                           disabled={isLinking}
-                          className="text-xs bg-sage-100 hover:bg-sage-200 text-sage-700 font-bold px-3 py-1.5 rounded-lg transition-colors"
+                          className="text-xs bg-sage-100 dark:bg-neutral-800 hover:bg-sage-200 dark:hover:bg-neutral-700 text-sage-700 dark:text-white font-bold px-3 py-1.5 rounded-lg transition-colors"
                         >
                           Bağla
                         </button>
@@ -1333,69 +1336,69 @@ export default function App() {
           </section>
         )}
 
-        <section className="bg-white rounded-3xl p-6 border border-sage-100 shadow-sm">
-          <h3 className="text-sm font-bold text-sage-500 uppercase tracking-widest mb-4">Uygulama Ayarları</h3>
+        <section className="bg-white dark:bg-neutral-900 rounded-3xl p-6 border border-sage-100 dark:border-neutral-800 shadow-sm">
+          <h3 className="text-sm font-bold text-sage-500 dark:text-neutral-400 uppercase tracking-widest mb-4">Uygulama Ayarları</h3>
           
           <div className="space-y-6">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
-                <div className="bg-sage-50 p-2 rounded-lg text-sage-600">
+                <div className="bg-sage-50 dark:bg-neutral-800 p-2 rounded-lg text-sage-600 dark:text-white">
                   {isSoundEnabled ? <Volume2 size={20} /> : <VolumeX size={20} />}
                 </div>
                 <div>
-                  <p className="font-bold text-sage-800">Ses Efektleri</p>
-                  <p className="text-xs text-sage-500">Etkileşimlerde ses çal</p>
+                  <p className="font-bold text-sage-800 dark:text-white">Ses Efektleri</p>
+                  <p className="text-xs text-sage-500 dark:text-neutral-400">Etkileşimlerde ses çal</p>
                 </div>
               </div>
               <button 
                 onClick={() => { playClick(); setIsSoundEnabled(!isSoundEnabled); }}
-                className={`w-12 h-6 rounded-full transition-colors relative ${isSoundEnabled ? 'bg-sage-500' : 'bg-sage-200'}`}
+                className={`w-12 h-6 rounded-full transition-colors relative ${isSoundEnabled ? 'bg-sage-500 dark:bg-white' : 'bg-sage-200 dark:bg-neutral-700'}`}
               >
-                <div className={`absolute top-1 w-4 h-4 bg-white rounded-full transition-all ${isSoundEnabled ? 'left-7' : 'left-1'}`} />
+                <div className={`absolute top-1 w-4 h-4 bg-white dark:bg-black rounded-full transition-all ${isSoundEnabled ? 'left-7' : 'left-1'}`} />
               </button>
             </div>
 
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
-                <div className="bg-sage-50 p-2 rounded-lg text-sage-600 dark:bg-sage-800 dark:text-sage-300">
+                <div className="bg-sage-50 p-2 rounded-lg text-sage-600 dark:bg-neutral-800 dark:text-white">
                   {theme === 'dark' ? <Moon size={20} /> : <Sun size={20} />}
                 </div>
                 <div>
-                  <p className="font-bold text-sage-800 dark:text-sage-100">Görünüm</p>
-                  <p className="text-xs text-sage-500 dark:text-sage-400">Karanlık modu aç/kapat</p>
+                  <p className="font-bold text-sage-800 dark:text-white">Görünüm</p>
+                  <p className="text-xs text-sage-500 dark:text-neutral-400">Karanlık modu aç/kapat</p>
                 </div>
               </div>
               <button 
                 onClick={() => { playClick(); setTheme(theme === 'dark' ? 'light' : 'dark'); }}
-                className={`w-12 h-6 rounded-full transition-colors relative ${theme === 'dark' ? 'bg-sage-500' : 'bg-sage-200'}`}
+                className={`w-12 h-6 rounded-full transition-colors relative ${theme === 'dark' ? 'bg-sage-500 dark:bg-white' : 'bg-sage-200 dark:bg-neutral-700'}`}
               >
-                <div className={`absolute top-1 w-4 h-4 bg-white rounded-full transition-all ${theme === 'dark' ? 'left-7' : 'left-1'}`} />
+                <div className={`absolute top-1 w-4 h-4 bg-white dark:bg-black rounded-full transition-all ${theme === 'dark' ? 'left-7' : 'left-1'}`} />
               </button>
             </div>
 
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
-                <div className="bg-sage-50 p-2 rounded-lg text-sage-600">
+                <div className="bg-sage-50 dark:bg-neutral-800 p-2 rounded-lg text-sage-600 dark:text-white">
                   <LayoutGrid size={20} />
                 </div>
                 <div>
-                  <p className="font-bold text-sage-800">Açılış Ekranı</p>
-                  <p className="text-xs text-sage-500">Uygulama açılırken splash göster</p>
+                  <p className="font-bold text-sage-800 dark:text-white">Açılış Ekranı</p>
+                  <p className="text-xs text-sage-500 dark:text-neutral-400">Uygulama açılırken splash göster</p>
                 </div>
               </div>
               <button 
                 onClick={() => { playClick(); setIsSplashEnabled(!isSplashEnabled); }}
-                className={`w-12 h-6 rounded-full transition-colors relative ${isSplashEnabled ? 'bg-sage-500' : 'bg-sage-200'}`}
+                className={`w-12 h-6 rounded-full transition-colors relative ${isSplashEnabled ? 'bg-sage-500 dark:bg-white' : 'bg-sage-200 dark:bg-neutral-700'}`}
               >
-                <div className={`absolute top-1 w-4 h-4 bg-white rounded-full transition-all ${isSplashEnabled ? 'left-7' : 'left-1'}`} />
+                <div className={`absolute top-1 w-4 h-4 bg-white dark:bg-black rounded-full transition-all ${isSplashEnabled ? 'left-7' : 'left-1'}`} />
               </button>
             </div>
           </div>
         </section>
 
-        <section className="bg-white rounded-3xl p-6 border border-sage-100 shadow-sm">
+        <section className="bg-white dark:bg-neutral-900 rounded-3xl p-6 border border-sage-100 dark:border-neutral-800 shadow-sm">
           <h3 className="text-sm font-bold text-red-500 uppercase tracking-widest mb-4">Tehlikeli Bölge</h3>
-          <p className="text-sm text-sage-600 mb-6">
+          <p className="text-sm text-sage-600 dark:text-neutral-400 mb-6">
             Tüm verilerinizi (görevler, okuma geçmişi ve ayarlar) kalıcı olarak silmek için aşağıdaki butonu kullanın.
           </p>
           <button 
@@ -1437,7 +1440,7 @@ export default function App() {
               filter: "blur(10px)",
               transition: { duration: 0.8, ease: "easeInOut" }
             }}
-            className="fixed inset-0 z-[100] bg-sage-800 flex flex-col items-center justify-center overflow-hidden"
+            className="fixed inset-0 z-[100] bg-sage-800 dark:bg-black flex flex-col items-center justify-center overflow-hidden"
           >
             {/* Background Decorative Elements */}
             <motion.div 
@@ -1684,7 +1687,7 @@ export default function App() {
                         exit={{ height: 0, opacity: 0 }}
                         className="overflow-hidden"
                       >
-                        <div className="mt-4 mb-4 p-3 bg-white rounded-xl border border-sage-200 text-xs text-sage-600 flex items-center gap-2">
+                        <div className="mt-4 mb-4 p-3 bg-white dark:bg-sage-200 rounded-xl border border-sage-200 dark:border-sage-300 text-xs text-sage-600 dark:text-sage-800 flex items-center gap-2">
                           <Info size={14} className="shrink-0" />
                           <p>
                             {startJuzSelection === null 
@@ -1703,7 +1706,7 @@ export default function App() {
                                 className={`rounded-lg py-2 text-sm font-bold transition-all ${
                                   isSelected 
                                     ? "bg-sage-700 text-white scale-110 shadow-md" 
-                                    : "bg-white border border-sage-200 text-sage-700 hover:bg-sage-50"
+                                    : "bg-white dark:bg-sage-200 border border-sage-200 dark:border-sage-300 text-sage-700 dark:text-sage-800 hover:bg-sage-50 dark:hover:bg-sage-300"
                                 }`}
                               >
                                 {juzNum}
@@ -1777,13 +1780,13 @@ export default function App() {
               initial={{ scale: 0.9, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               exit={{ scale: 0.9, opacity: 0 }}
-              className="bg-white w-full max-w-sm rounded-3xl p-8 relative z-10 shadow-2xl text-center"
+              className="bg-white dark:bg-sage-100 w-full max-w-sm rounded-3xl p-8 relative z-10 shadow-2xl text-center"
             >
-              <div className="w-16 h-16 bg-red-50 text-red-500 rounded-full flex items-center justify-center mx-auto mb-6">
+              <div className="w-16 h-16 bg-red-50 dark:bg-red-900/20 text-red-500 rounded-full flex items-center justify-center mx-auto mb-6">
                 <Trash2 size={32} />
               </div>
-              <h3 className="text-xl font-bold text-sage-800 mb-2">Görevi Sil?</h3>
-              <p className="text-sage-500 text-sm mb-8">
+              <h3 className="text-xl font-bold text-sage-800 dark:text-sage-100 mb-2">Görevi Sil?</h3>
+              <p className="text-sage-500 dark:text-sage-400 text-sm mb-8">
                 Bu görevi ve tüm kayıtlarını silmek istediğinize emin misiniz?
               </p>
               <div className="space-y-3">
@@ -1820,13 +1823,13 @@ export default function App() {
               initial={{ scale: 0.9, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               exit={{ scale: 0.9, opacity: 0 }}
-              className="bg-white w-full max-w-sm rounded-3xl p-8 relative z-10 shadow-2xl text-center"
+              className="bg-white dark:bg-sage-100 w-full max-w-sm rounded-3xl p-8 relative z-10 shadow-2xl text-center"
             >
-              <div className="w-16 h-16 bg-amber-50 text-amber-500 rounded-full flex items-center justify-center mx-auto mb-6">
+              <div className="w-16 h-16 bg-amber-50 dark:bg-amber-900/20 text-amber-500 rounded-full flex items-center justify-center mx-auto mb-6">
                 <Info size={32} />
               </div>
-              <h3 className="text-xl font-bold text-sage-800 mb-2">Bilgi</h3>
-              <p className="text-sage-500 text-sm mb-8">
+              <h3 className="text-xl font-bold text-sage-800 dark:text-sage-100 mb-2">Bilgi</h3>
+              <p className="text-sage-500 dark:text-sage-400 text-sm mb-8">
                 {errorMessage}
               </p>
               <button 
@@ -1855,13 +1858,13 @@ export default function App() {
               initial={{ scale: 0.9, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               exit={{ scale: 0.9, opacity: 0 }}
-              className="bg-white w-full max-w-sm rounded-3xl p-8 relative z-10 shadow-2xl text-center"
+              className="bg-white dark:bg-sage-100 w-full max-w-sm rounded-3xl p-8 relative z-10 shadow-2xl text-center"
             >
-              <div className="w-16 h-16 bg-red-50 text-red-500 rounded-full flex items-center justify-center mx-auto mb-6">
+              <div className="w-16 h-16 bg-red-50 dark:bg-red-900/20 text-red-500 rounded-full flex items-center justify-center mx-auto mb-6">
                 <Trash2 size={32} />
               </div>
-              <h3 className="text-xl font-bold text-sage-800 mb-2">Hesabı Sil?</h3>
-              <p className="text-sage-500 text-sm mb-8">
+              <h3 className="text-xl font-bold text-sage-800 dark:text-sage-100 mb-2">Hesabı Sil?</h3>
+              <p className="text-sage-500 dark:text-sage-400 text-sm mb-8">
                 Hesabınızı ve buluttaki tüm verilerinizi kalıcı olarak silmek istediğinize emin misiniz? Bu işlem geri alınamaz.
               </p>
               <div className="space-y-3">
@@ -1898,13 +1901,13 @@ export default function App() {
               initial={{ scale: 0.9, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               exit={{ scale: 0.9, opacity: 0 }}
-              className="bg-white w-full max-w-sm rounded-3xl p-8 relative z-10 shadow-2xl text-center"
+              className="bg-white dark:bg-sage-100 w-full max-w-sm rounded-3xl p-8 relative z-10 shadow-2xl text-center"
             >
-              <div className="w-16 h-16 bg-red-50 text-red-500 rounded-full flex items-center justify-center mx-auto mb-6">
+              <div className="w-16 h-16 bg-red-50 dark:bg-red-900/20 text-red-500 rounded-full flex items-center justify-center mx-auto mb-6">
                 <RotateCcw size={32} />
               </div>
-              <h3 className="text-xl font-bold text-sage-800 mb-2">Verileri Sıfırla?</h3>
-              <p className="text-sage-500 text-sm mb-8">
+              <h3 className="text-xl font-bold text-sage-800 dark:text-sage-100 mb-2">Verileri Sıfırla?</h3>
+              <p className="text-sage-500 dark:text-sage-400 text-sm mb-8">
                 Tüm görevleriniz ve okuma geçmişiniz kalıcı olarak silinecektir. Bu işlem geri alınamaz.
               </p>
               <div className="space-y-3">
