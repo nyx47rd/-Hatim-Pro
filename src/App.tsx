@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo, FormEvent, useRef } from 'react';
+import React, { useState, useEffect, useMemo, FormEvent, useRef } from 'react';
 import useSound from 'use-sound';
 import { 
   BookOpen, 
@@ -39,10 +39,10 @@ import { HatimData, ReadingLog, HatimTask } from './types';
 import { useAuth } from './contexts/AuthContext';
 import { AuthModal } from './components/AuthModal';
 import { syncDataToFirebase, listenToFirebaseData } from './services/db';
-import { auth } from './lib/firebase';
+import { auth, db, storage } from './lib/firebase';
 import { signOut, deleteUser, updatePassword, EmailAuthProvider, reauthenticateWithCredential, sendPasswordResetEmail, linkWithPopup, GithubAuthProvider, OAuthProvider, GoogleAuthProvider, FacebookAuthProvider } from 'firebase/auth';
 import { doc, deleteDoc, updateDoc } from 'firebase/firestore';
-import { db } from './lib/firebase';
+import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { QRCodeSVG } from 'qrcode.react';
 import { getFirebaseErrorMessage } from './lib/firebaseErrors';
 import * as OTPAuth from 'otpauth';
@@ -115,6 +115,13 @@ export default function App() {
   const [editPhoto, setEditPhoto] = useState(profile?.photoURL || '');
   const { theme, setTheme } = useTheme();
 
+  useEffect(() => {
+    if (profile) {
+      setEditUsername(profile.username || '');
+      setEditPhoto(profile.photoURL || '');
+    }
+  }, [profile]);
+
   const handleSaveUsername = async () => {
     if (!user) return;
     try {
@@ -127,6 +134,63 @@ export default function App() {
       console.error("Error updating profile", e);
       alert('Profil güncellenirken hata oluştu.');
     }
+  };
+
+  const handlePhotoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (!e.target.files || e.target.files.length === 0 || !user) return;
+    const file = e.target.files[0];
+    
+    // Check file size (limit to 2MB before processing)
+    if (file.size > 2 * 1024 * 1024) {
+      alert('Lütfen 2MB\'dan küçük bir fotoğraf seçin.');
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = async (event) => {
+      const img = new Image();
+      img.onload = async () => {
+        // Resize image using canvas to keep Base64 string small
+        const canvas = document.createElement('canvas');
+        const MAX_WIDTH = 300;
+        const MAX_HEIGHT = 300;
+        let width = img.width;
+        let height = img.height;
+
+        if (width > height) {
+          if (width > MAX_WIDTH) {
+            height *= MAX_WIDTH / width;
+            width = MAX_WIDTH;
+          }
+        } else {
+          if (height > MAX_HEIGHT) {
+            width *= MAX_HEIGHT / height;
+            height = MAX_HEIGHT;
+          }
+        }
+
+        canvas.width = width;
+        canvas.height = height;
+        const ctx = canvas.getContext('2d');
+        ctx?.drawImage(img, 0, 0, width, height);
+
+        // Convert to low quality JPEG to save space
+        const base64String = canvas.toDataURL('image/jpeg', 0.7);
+        
+        try {
+          setEditPhoto(base64String);
+          await updateDoc(doc(db, 'users', user.uid), {
+            photoURL: base64String
+          });
+          alert('Profil fotoğrafı güncellendi!');
+        } catch (err) {
+          console.error("Error updating profile photo", err);
+          alert('Profil fotoğrafı güncellenirken hata oluştu.');
+        }
+      };
+      img.src = event.target?.result as string;
+    };
+    reader.readAsDataURL(file);
   };
   
   // Auth Enforcement
@@ -1102,7 +1166,14 @@ export default function App() {
               />
             </div>
             <div className="flex flex-col gap-2">
-              <label className="text-xs font-bold text-sage-600 dark:text-sage-300">Profil Fotoğrafı URL</label>
+              <label className="text-xs font-bold text-sage-600 dark:text-sage-300">Profil Fotoğrafı</label>
+              <input 
+                type="file" 
+                accept="image/*"
+                onChange={handlePhotoUpload}
+                className="w-full bg-white dark:bg-neutral-800 border border-sage-100 dark:border-neutral-700 rounded-2xl px-4 py-3 text-sm focus:border-sage-500 focus:outline-none transition-all"
+              />
+              <p className="text-xs text-sage-500">Veya URL girin:</p>
               <input 
                 type="text" 
                 value={editPhoto}
