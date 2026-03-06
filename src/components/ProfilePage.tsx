@@ -41,6 +41,12 @@ interface ProfilePageProps {
 
 export const ProfilePage: React.FC<ProfilePageProps> = ({ username, onBack, playClick }) => {
   const { user, profile: currentUserProfile } = useAuth();
+  const [currentUsername, setCurrentUsername] = useState<string | undefined>(username);
+  
+  useEffect(() => {
+    setCurrentUsername(username);
+  }, [username]);
+
   const [profile, setProfile] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [isEditing, setIsEditing] = useState(false);
@@ -61,9 +67,9 @@ export const ProfilePage: React.FC<ProfilePageProps> = ({ username, onBack, play
     const fetchProfile = async () => {
       setLoading(true);
       let currentProfileData = null;
-      if (username) {
+      if (currentUsername) {
         // Fetch by username
-        const q = query(collection(db, 'users'), where('username', '==', username), limit(1));
+        const q = query(collection(db, 'users'), where('username', '==', currentUsername), limit(1));
         const snap = await getDocs(q);
         if (!snap.empty) {
           currentProfileData = snap.docs[0].data();
@@ -92,7 +98,7 @@ export const ProfilePage: React.FC<ProfilePageProps> = ({ username, onBack, play
     };
 
     fetchProfile();
-  }, [username, user, currentUserProfile]);
+  }, [currentUsername, user, currentUserProfile]);
 
   const handleFollow = async () => {
     if (!user || !profile || !currentUserProfile) return;
@@ -100,13 +106,16 @@ export const ProfilePage: React.FC<ProfilePageProps> = ({ username, onBack, play
     
     const isFollowing = currentUserProfile.following?.includes(profile.uid);
     const currentUserRef = doc(db, 'users', user.uid);
+    const targetUserRef = doc(db, 'users', profile.uid);
 
     try {
       if (isFollowing) {
         await updateDoc(currentUserRef, { following: arrayRemove(profile.uid) });
+        await updateDoc(targetUserRef, { followers: arrayRemove(user.uid) });
         setFollowersCount(prev => Math.max(0, prev - 1));
       } else {
         await updateDoc(currentUserRef, { following: arrayUnion(profile.uid) });
+        await updateDoc(targetUserRef, { followers: arrayUnion(user.uid) });
         setFollowersCount(prev => prev + 1);
       }
     } catch (e) {
@@ -114,20 +123,31 @@ export const ProfilePage: React.FC<ProfilePageProps> = ({ username, onBack, play
     }
   };
 
+  useEffect(() => {
+    const searchUsers = async () => {
+      if (!searchQuery.trim()) {
+        setSearchResults([]);
+        return;
+      }
+      
+      const searchStr = searchQuery.trim().toLowerCase();
+      const q = query(
+        collection(db, 'users'), 
+        where('username', '>=', searchStr),
+        where('username', '<=', searchStr + '\uf8ff'),
+        limit(10)
+      );
+      
+      const snap = await getDocs(q);
+      setSearchResults(snap.docs.map(doc => doc.data()));
+    };
+
+    const debounceTimer = setTimeout(searchUsers, 300);
+    return () => clearTimeout(debounceTimer);
+  }, [searchQuery]);
+
   const handleSearch = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!searchQuery.trim()) return;
-    
-    const searchStr = searchQuery.trim().toLowerCase();
-    const q = query(
-      collection(db, 'users'), 
-      where('username', '>=', searchStr),
-      where('username', '<=', searchStr + '\uf8ff'),
-      limit(10)
-    );
-    
-    const snap = await getDocs(q);
-    setSearchResults(snap.docs.map(doc => doc.data()));
   };
 
   const handleSaveProfile = async () => {
@@ -393,7 +413,8 @@ export const ProfilePage: React.FC<ProfilePageProps> = ({ username, onBack, play
                 <button 
                   key={res.uid}
                   onClick={() => {
-                    setProfile(res);
+                    setCurrentUsername(res.username);
+                    window.history.pushState({}, '', '/@' + res.username);
                     setIsSearching(false);
                     setSearchResults([]);
                     setSearchQuery('');

@@ -1759,7 +1759,11 @@ export default function App() {
                     </button>
                   </div>
                   <button 
-                    onClick={() => { playClick(); setActiveView('profile'); }} 
+                    onClick={() => { 
+                      playClick(); 
+                      setProfileUsername(undefined);
+                      setActiveView('profile'); 
+                    }} 
                     className="flex items-center gap-4 p-4 bg-white dark:bg-neutral-900 rounded-2xl border border-sage-100 dark:border-neutral-800 shadow-sm hover:bg-sage-50 dark:hover:bg-neutral-800 transition-colors"
                   >
                     <User className="text-sage-600 dark:text-white" size={24} />
@@ -1803,47 +1807,40 @@ export default function App() {
 
             {/* Bottom Navbar */}
             {activeView !== 'zikir' && activeView !== 'profile' && activeView !== 'more' && (
-              <nav className="fixed bottom-0 left-0 right-0 bg-white dark:bg-black border-t border-sage-200 dark:border-white/10 px-4 py-1 pb-2 z-40">
-                <div className="max-w-2xl mx-auto flex justify-between items-center">
+              <nav className="fixed bottom-0 left-0 right-0 bg-white dark:bg-black border-t border-sage-200 dark:border-white/10 px-8 py-3 pb-5 z-40">
+                <div className="max-w-sm mx-auto flex justify-between items-center">
                   <button 
                     onClick={() => { playClick(); setActiveView('home'); }}
-                    className={`flex-1 flex flex-col items-center gap-0 transition-colors ${activeView === 'home' ? 'text-sage-600 dark:text-white' : 'text-sage-400'}`}
+                    className={`transition-colors ${activeView === 'home' ? 'text-sage-800 dark:text-white' : 'text-sage-400 dark:text-neutral-500'}`}
                   >
-                    <Home size={20} />
-                    <span className="text-[9px] font-bold uppercase tracking-widest">Ana Sayfa</span>
+                    <Home size={26} strokeWidth={activeView === 'home' ? 2.5 : 2} />
                   </button>
                   <button 
                     onClick={() => handleProtectedAction(() => { playClick(); setActiveView('tasks'); })}
-                    className={`flex-1 flex flex-col items-center gap-0 transition-colors ${activeView === 'tasks' ? 'text-sage-600 dark:text-white' : 'text-sage-400'}`}
+                    className={`transition-colors ${activeView === 'tasks' ? 'text-sage-800 dark:text-white' : 'text-sage-400 dark:text-neutral-500'}`}
                   >
-                    <ListTodo size={20} />
-                    <span className="text-[9px] font-bold uppercase tracking-widest">Görevler</span>
+                    <ListTodo size={26} strokeWidth={activeView === 'tasks' ? 2.5 : 2} />
                   </button>
                   
                   {/* Zikir Button */}
                   <button 
                     onClick={() => { playClick(); setActiveView('zikir'); }}
-                    className="flex-1 flex flex-col items-center justify-center -mt-4 relative z-50"
+                    className="transition-colors text-sage-400 dark:text-neutral-500 hover:text-sage-800 dark:hover:text-white"
                   >
-                    <div className="bg-black dark:bg-white text-white dark:text-black p-2.5 rounded-full shadow-lg shadow-black/20 dark:shadow-white/10 border-2 border-white dark:border-black transform transition-transform active:scale-95">
-                      <RotateCcw size={22} />
-                    </div>
-                    <span className="text-[9px] font-bold mt-0.5 text-neutral-600 dark:text-neutral-400">Zikir</span>
+                    <RotateCcw size={26} strokeWidth={2} />
                   </button>
 
                   <button 
                     onClick={() => handleProtectedAction(() => { playClick(); setActiveView('history'); })}
-                    className={`flex-1 flex flex-col items-center gap-0 transition-colors ${activeView === 'history' ? 'text-sage-600 dark:text-white' : 'text-sage-400'}`}
+                    className={`transition-colors ${activeView === 'history' ? 'text-sage-800 dark:text-white' : 'text-sage-400 dark:text-neutral-500'}`}
                   >
-                    <Clock size={20} />
-                    <span className="text-[9px] font-bold uppercase tracking-widest">Geçmiş</span>
+                    <Clock size={26} strokeWidth={activeView === 'history' ? 2.5 : 2} />
                   </button>
                   <button 
                     onClick={() => handleProtectedAction(() => { playClick(); setActiveView('more'); })}
-                    className={`flex-1 flex flex-col items-center gap-0 transition-colors ${activeView === 'more' ? 'text-sage-600 dark:text-white' : 'text-sage-400'}`}
+                    className={`transition-colors ${activeView === 'more' ? 'text-sage-800 dark:text-white' : 'text-sage-400 dark:text-neutral-500'}`}
                   >
-                    <MoreHorizontal size={20} />
-                    <span className="text-[9px] font-bold uppercase tracking-widest">Diğer</span>
+                    <MoreHorizontal size={26} strokeWidth={activeView === 'more' ? 2.5 : 2} />
                   </button>
                 </div>
               </nav>
