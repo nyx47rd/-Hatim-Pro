@@ -20,6 +20,7 @@ interface UserProfile {
   stats?: {
     totalHatim?: number;
     totalZikir?: number;
+    totalReadPages?: number;
     streak?: number;
   };
 }

@@ -284,26 +284,46 @@ export const ZikirPage: React.FC<ZikirPageProps> = ({ onBack, playClick }) => {
           )}
           
           {isMultiplayer && (
-            <button
-              onClick={() => {
-                setAlertConfig({
-                  show: true,
-                  title: 'Ayrıl',
-                  message: 'Odadan ayrılmak istiyor musunuz?',
-                  type: 'confirm',
-                  onConfirm: () => {
-                    setSessionId(null);
-                    setIsMultiplayer(false);
-                    setCount(0);
-                    setAlertConfig(null);
+            <>
+              <button
+                onClick={() => {
+                  if (navigator.share) {
+                    navigator.share({
+                      title: 'Hatim Pro Zikir',
+                      text: `Hatim Pro'da birlikte zikir çekelim! Oda kodu: ${sessionId}`,
+                      url: window.location.origin
+                    }).catch(console.error);
+                  } else {
+                    copySessionId();
+                    alert('Oda kodu kopyalandı. Arkadaşlarına gönderebilirsin.');
                   }
-                });
-              }}
-              className="flex-1 bg-red-900/20 border border-red-900/50 text-red-500 py-4 rounded-2xl flex flex-col items-center justify-center gap-1 hover:bg-red-900/30 transition-colors"
-            >
-              <X size={20} />
-              <span className="text-xs font-bold">Ayrıl</span>
-            </button>
+                }}
+                className="flex-1 bg-neutral-900 border border-neutral-800 text-white py-4 rounded-2xl flex flex-col items-center justify-center gap-1 hover:bg-neutral-800 transition-colors"
+              >
+                <Share2 size={20} className="text-blue-400" />
+                <span className="text-xs font-bold">Davet Et</span>
+              </button>
+              <button
+                onClick={() => {
+                  setAlertConfig({
+                    show: true,
+                    title: 'Ayrıl',
+                    message: 'Odadan ayrılmak istiyor musunuz?',
+                    type: 'confirm',
+                    onConfirm: () => {
+                      setSessionId(null);
+                      setIsMultiplayer(false);
+                      setCount(0);
+                      setAlertConfig(null);
+                    }
+                  });
+                }}
+                className="flex-1 bg-red-900/20 border border-red-900/50 text-red-500 py-4 rounded-2xl flex flex-col items-center justify-center gap-1 hover:bg-red-900/30 transition-colors"
+              >
+                <X size={20} />
+                <span className="text-xs font-bold">Ayrıl</span>
+              </button>
+            </>
           )}
         </div>
       </div>
