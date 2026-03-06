@@ -40,19 +40,6 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
     onClose();
   };
 
-  const handleGuestLogin = async () => {
-    setError(null);
-    setLoading(true);
-    try {
-      await signInAnonymously(auth);
-      handleClose();
-    } catch (err: any) {
-      setError(getFirebaseErrorMessage(err));
-    } finally {
-      setLoading(false);
-    }
-  };
-
   const handleGithubLogin = async () => {
     setError(null);
     setLoading(true);
@@ -160,11 +147,11 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
             initial={{ scale: 0.95, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
             exit={{ scale: 0.95, opacity: 0 }}
-            className="bg-white dark:bg-neutral-900 rounded-3xl w-full max-w-md overflow-hidden shadow-2xl relative"
+            className="bg-white dark:bg-neutral-900 rounded-3xl w-full max-w-md overflow-y-auto max-h-[90vh] shadow-2xl relative"
           >
             <button
               onClick={handleClose}
-              className="absolute top-4 right-4 p-2 text-sage-400 hover:text-sage-600 dark:text-gray-400 dark:hover:text-white hover:bg-sage-50 dark:hover:bg-neutral-800 rounded-full transition-colors"
+              className="absolute top-4 right-4 p-2 text-sage-400 hover:text-sage-600 dark:text-gray-400 dark:hover:text-white hover:bg-sage-50 dark:hover:bg-neutral-800 rounded-full transition-colors z-10"
             >
               <X size={20} />
             </button>
@@ -288,16 +275,6 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
                       )}
                     </button>
                   </form>
-
-                  <div className="mt-4">
-                    <button
-                      onClick={handleGuestLogin}
-                      disabled={loading}
-                      className="w-full bg-neutral-100 dark:bg-neutral-800 hover:bg-neutral-200 dark:hover:bg-neutral-700 text-neutral-900 dark:text-white font-bold py-3 rounded-xl transition-colors flex items-center justify-center gap-2 text-sm"
-                    >
-                      Misafir Olarak Devam Et
-                    </button>
-                  </div>
 
                   <div className="mt-6 flex flex-col gap-3">
                     <div className="relative flex items-center py-2">

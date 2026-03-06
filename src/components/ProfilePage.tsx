@@ -101,21 +101,18 @@ export const ProfilePage: React.FC<ProfilePageProps> = ({ username, onBack, play
   }, [currentUsername, user, currentUserProfile]);
 
   const handleFollow = async () => {
-    if (!user || !profile || !currentUserProfile) return;
+    if (!user || !profile || !profile.uid || !currentUserProfile) return;
     playClick();
     
     const isFollowing = currentUserProfile.following?.includes(profile.uid);
     const currentUserRef = doc(db, 'users', user.uid);
-    const targetUserRef = doc(db, 'users', profile.uid);
 
     try {
       if (isFollowing) {
         await updateDoc(currentUserRef, { following: arrayRemove(profile.uid) });
-        await updateDoc(targetUserRef, { followers: arrayRemove(user.uid) });
         setFollowersCount(prev => Math.max(0, prev - 1));
       } else {
         await updateDoc(currentUserRef, { following: arrayUnion(profile.uid) });
-        await updateDoc(targetUserRef, { followers: arrayUnion(user.uid) });
         setFollowersCount(prev => prev + 1);
       }
     } catch (e) {

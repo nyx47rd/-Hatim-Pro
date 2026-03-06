@@ -133,24 +133,24 @@ export const ZikirPage: React.FC<ZikirPageProps> = ({ onBack, playClick, joinSes
 
     const fetchMutuals = async () => {
       const following = profile.following || [];
-      const followers = profile.followers || [];
-      const mutualUids = following.filter(uid => followers.includes(uid));
       
-      if (mutualUids.length === 0) {
+      if (following.length === 0) {
         setMutualFollowers([]);
         return;
       }
 
       const mutualsData = [];
-      for (const uid of mutualUids) {
+      for (const uid of following) {
         const userSnap = await getDocs(query(collection(db, 'users'), where('uid', '==', uid)));
         if (!userSnap.empty) {
           const userData = userSnap.docs[0].data();
-          mutualsData.push({
-            uid: userData.uid,
-            displayName: userData.displayName || 'İsimsiz',
-            photoURL: userData.photoURL || `https://api.dicebear.com/7.x/avataaars/svg?seed=${userData.uid}`
-          });
+          if (userData.following?.includes(user.uid)) {
+            mutualsData.push({
+              uid: userData.uid,
+              displayName: userData.displayName || 'İsimsiz',
+              photoURL: userData.photoURL || `https://api.dicebear.com/7.x/avataaars/svg?seed=${userData.uid}`
+            });
+          }
         }
       }
       setMutualFollowers(mutualsData);

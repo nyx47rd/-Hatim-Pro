@@ -64,8 +64,6 @@ const SOUNDS = {
   open: 'https://assets.mixkit.co/active_storage/sfx/2568/2568-preview.mp3',
 };
 
-import { useTheme } from 'next-themes';
-
 const recalculateTaskLogs = (logs: ReadingLog[], task: HatimTask) => {
   const taskLogs = logs.filter(l => l.taskId === task.id)
     .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
@@ -132,7 +130,6 @@ export default function App() {
 
   const [editUsername, setEditUsername] = useState(profile?.username || '');
   const [editPhoto, setEditPhoto] = useState(profile?.photoURL || '');
-  const { theme, setTheme } = useTheme();
 
   useEffect(() => {
     if (profile) {
@@ -1544,24 +1541,6 @@ export default function App() {
                 className={`w-12 h-6 rounded-full transition-colors relative ${isSoundEnabled ? 'bg-sage-500 dark:bg-white' : 'bg-sage-200 dark:bg-neutral-700'}`}
               >
                 <div className={`absolute top-1 w-4 h-4 bg-white dark:bg-black rounded-full transition-all ${isSoundEnabled ? 'left-7' : 'left-1'}`} />
-              </button>
-            </div>
-
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <div className="bg-sage-50 p-2 rounded-lg text-sage-600 dark:bg-neutral-800 dark:text-white">
-                  {theme === 'dark' ? <Moon size={20} /> : <Sun size={20} />}
-                </div>
-                <div>
-                  <p className="font-bold text-sage-800 dark:text-white">Görünüm</p>
-                  <p className="text-xs text-sage-500 dark:text-white">Karanlık modu aç/kapat</p>
-                </div>
-              </div>
-              <button 
-                onClick={() => { playClick(); setTheme(theme === 'dark' ? 'light' : 'dark'); }}
-                className={`w-12 h-6 rounded-full transition-colors relative ${theme === 'dark' ? 'bg-sage-500 dark:bg-white' : 'bg-sage-200 dark:bg-neutral-700'}`}
-              >
-                <div className={`absolute top-1 w-4 h-4 bg-white dark:bg-black rounded-full transition-all ${theme === 'dark' ? 'left-7' : 'left-1'}`} />
               </button>
             </div>
 
