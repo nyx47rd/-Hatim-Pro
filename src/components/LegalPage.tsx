@@ -46,13 +46,13 @@ export function LegalPage({ type, onBack }: LegalPageProps) {
                 <p className="mb-6 leading-relaxed">Toplanan veriler yalnızca size hizmet sunmak, ilerlemenizi cihazlar arasında senkronize etmek ve arkadaşlarınızla ortak zikir odaları oluşturabilmeniz için kullanılır. Verileriniz kesinlikle üçüncü taraf reklam şirketleriyle paylaşılmaz.</p>
                 
                 <h3 className="text-xl font-bold text-sage-900 dark:text-white mb-4">3. Veri Güvenliği</h3>
-                <p className="mb-6 leading-relaxed">Kullanıcı verileri, endüstri standardı şifreleme yöntemleriyle korunmaktadır. Şifreleriniz hash'lenerek saklanır ve tarafımızca görülemez. Google, Apple veya Microsoft gibi üçüncü taraf giriş yöntemleri kullanıldığında, bu platformların güvenlik standartları geçerlidir.</p>
+                <p className="mb-6 leading-relaxed">Kullanıcı verileri, endüstri standardı şifreleme yöntemleriyle korunmaktadır. Şifreleriniz hash'lenerek saklanır ve tarafımızca görülemez. Google, Facebook, Apple veya Microsoft gibi üçüncü taraf giriş yöntemleri kullanıldığında, bu platformların güvenlik standartları geçerlidir.</p>
                 
                 <h3 className="text-xl font-bold text-sage-900 dark:text-white mb-4">4. Hesap Silme</h3>
                 <p className="mb-6 leading-relaxed">Kullanıcılar diledikleri zaman "Ayarlar" menüsünden hesaplarını ve tüm ilişkili verilerini kalıcı olarak silebilirler. Bu işlem geri alınamaz.</p>
                 
                 <h3 className="text-xl font-bold text-sage-900 dark:text-white mb-4">5. İletişim</h3>
-                <p className="mb-6 leading-relaxed">Gizlilik politikamızla ilgili sorularınız için destek@hatimpro.com adresinden bizimle iletişime geçebilirsiniz.</p>
+                <p className="mb-6 leading-relaxed">Gizlilik politikamızla ilgili sorularınız için hatimpro.app@gmail.com adresinden bizimle iletişime geçebilirsiniz.</p>
                 
                 <div className="mt-12 pt-6 border-t border-sage-100 dark:border-neutral-800 text-sm text-sage-500">
                   Son Güncelleme: 7 Mart 2026
