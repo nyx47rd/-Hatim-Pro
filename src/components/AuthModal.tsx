@@ -10,7 +10,6 @@ import {
   signInAnonymously
 } from 'firebase/auth';
 import { getFirebaseErrorMessage } from '../lib/firebaseErrors';
-import { LegalModal } from './LegalModal';
 
 interface AuthModalProps {
   isOpen: boolean;
@@ -20,7 +19,6 @@ interface AuthModalProps {
 export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
   const [isLogin, setIsLogin] = useState(true);
   const [isResetPassword, setIsResetPassword] = useState(false);
-  const [legalType, setLegalType] = useState<'privacy' | 'terms' | null>(null);
   
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -344,7 +342,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
                   </div>
                   
                   <div className="mt-6 text-center text-xs text-sage-500 dark:text-neutral-500">
-                    Devam ederek <button onClick={() => setLegalType('terms')} className="underline hover:text-sage-700 dark:hover:text-neutral-300">Kullanım Koşulları</button>'nı ve <button onClick={() => setLegalType('privacy')} className="underline hover:text-sage-700 dark:hover:text-neutral-300">Gizlilik Politikası</button>'nı kabul etmiş olursunuz.
+                    Devam ederek <a href="/terms" className="underline hover:text-sage-700 dark:hover:text-neutral-300">Kullanım Koşulları</a>'nı ve <a href="/privacy" className="underline hover:text-sage-700 dark:hover:text-neutral-300">Gizlilik Politikası</a>'nı kabul etmiş olursunuz.
                   </div>
                 </>
               )}
@@ -353,7 +351,6 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
         </motion.div>
       )}
     </AnimatePresence>
-    <LegalModal isOpen={!!legalType} onClose={() => setLegalType(null)} type={legalType || 'privacy'} />
     </>
   );
 };

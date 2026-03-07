@@ -90,19 +90,25 @@ const recalculateTaskLogs = (logs: ReadingLog[], task: HatimTask) => {
   };
 };
 
-import { LegalModal } from './components/LegalModal';
+import { LegalPage } from './components/LegalPage';
 
 const LazyZikirPage = React.lazy(() => import('./components/ZikirPage').then(module => ({ default: module.ZikirPage })));
 const LazyProfilePage = React.lazy(() => import('./components/ProfilePage').then(module => ({ default: module.ProfilePage })));
 const LazyNotificationsPanel = React.lazy(() => import('./components/NotificationsPanel').then(module => ({ default: module.NotificationsPanel })));
 
-type View = 'home' | 'tasks' | 'history' | 'settings' | 'zikir' | 'profile';
+type View = 'home' | 'tasks' | 'history' | 'settings' | 'zikir' | 'profile' | 'privacy' | 'terms' | 'more';
 
 export default function App() {
   const [activeView, setActiveView] = useState<View>(() => {
     const path = window.location.pathname;
     if (path.startsWith('/@')) {
       return 'profile';
+    }
+    if (path === '/privacy') {
+      return 'privacy';
+    }
+    if (path === '/terms') {
+      return 'terms';
     }
     return 'home';
   });
@@ -1493,7 +1499,7 @@ export default function App() {
             
             <div className="bg-white dark:bg-neutral-900 rounded-2xl border border-sage-100 dark:border-neutral-800 overflow-hidden shadow-sm mt-4">
               <button 
-                onClick={() => { playClick(); setLegalType('privacy'); }}
+                onClick={() => { playClick(); setActiveView('privacy'); window.history.pushState({}, '', '/privacy'); }}
                 className="w-full flex items-center justify-between p-4 hover:bg-sage-50 dark:hover:bg-neutral-800 transition-colors border-b border-sage-100 dark:border-neutral-800"
               >
                 <div className="flex items-center gap-3">
@@ -1503,7 +1509,7 @@ export default function App() {
                 <ChevronRight className="text-sage-400" size={20} />
               </button>
               <button 
-                onClick={() => { playClick(); setLegalType('terms'); }}
+                onClick={() => { playClick(); setActiveView('terms'); window.history.pushState({}, '', '/terms'); }}
                 className="w-full flex items-center justify-between p-4 hover:bg-sage-50 dark:hover:bg-neutral-800 transition-colors"
               >
                 <div className="flex items-center gap-3">
@@ -1719,6 +1725,28 @@ export default function App() {
                       joinSessionId={zikirJoinSessionId}
                     />
                   </Suspense>
+                </div>
+              )}
+              {activeView === 'privacy' && (
+                <div className="fixed inset-0 z-50 bg-sage-50 dark:bg-black overflow-y-auto">
+                  <LegalPage 
+                    type="privacy" 
+                    onBack={() => {
+                      setActiveView('settings');
+                      window.history.pushState({}, '', '/');
+                    }} 
+                  />
+                </div>
+              )}
+              {activeView === 'terms' && (
+                <div className="fixed inset-0 z-50 bg-sage-50 dark:bg-black overflow-y-auto">
+                  <LegalPage 
+                    type="terms" 
+                    onBack={() => {
+                      setActiveView('settings');
+                      window.history.pushState({}, '', '/');
+                    }} 
+                  />
                 </div>
               )}
             </main>
@@ -2200,8 +2228,6 @@ export default function App() {
           playClick={playClick}
         />
       </Suspense>
-
-      <LegalModal isOpen={!!legalType} onClose={() => setLegalType(null)} type={legalType || 'privacy'} />
     </div>
   );
 }
