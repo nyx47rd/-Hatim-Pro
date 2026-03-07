@@ -129,87 +129,6 @@ export default function App() {
     });
     return () => unsubscribe();
   }, [user]);
-
-  const [editUsername, setEditUsername] = useState(profile?.username || '');
-  const [editPhoto, setEditPhoto] = useState(profile?.photoURL || '');
-
-  useEffect(() => {
-    if (profile) {
-      setEditUsername(profile.username || '');
-      setEditPhoto(profile.photoURL || '');
-    }
-  }, [profile]);
-
-  const handleSaveUsername = async () => {
-    if (!user) return;
-    try {
-      await updateDoc(doc(db, 'users', user.uid), {
-        username: editUsername.toLowerCase(),
-        photoURL: editPhoto
-      });
-      alert('Profil güncellendi!');
-    } catch (e) {
-      console.error("Error updating profile", e);
-      alert('Profil güncellenirken hata oluştu.');
-    }
-  };
-
-  const handlePhotoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (!e.target.files || e.target.files.length === 0 || !user) return;
-    const file = e.target.files[0];
-    
-    // Check file size (limit to 2MB before processing)
-    if (file.size > 2 * 1024 * 1024) {
-      alert('Lütfen 2MB\'dan küçük bir fotoğraf seçin.');
-      return;
-    }
-
-    const reader = new FileReader();
-    reader.onload = async (event) => {
-      const img = new Image();
-      img.onload = async () => {
-        // Resize image using canvas to keep Base64 string small
-        const canvas = document.createElement('canvas');
-        const MAX_WIDTH = 300;
-        const MAX_HEIGHT = 300;
-        let width = img.width;
-        let height = img.height;
-
-        if (width > height) {
-          if (width > MAX_WIDTH) {
-            height *= MAX_WIDTH / width;
-            width = MAX_WIDTH;
-          }
-        } else {
-          if (height > MAX_HEIGHT) {
-            width *= MAX_HEIGHT / height;
-            height = MAX_HEIGHT;
-          }
-        }
-
-        canvas.width = width;
-        canvas.height = height;
-        const ctx = canvas.getContext('2d');
-        ctx?.drawImage(img, 0, 0, width, height);
-
-        // Convert to low quality JPEG to save space
-        const base64String = canvas.toDataURL('image/jpeg', 0.7);
-        
-        try {
-          setEditPhoto(base64String);
-          await updateDoc(doc(db, 'users', user.uid), {
-            photoURL: base64String
-          });
-          alert('Profil fotoğrafı güncellendi!');
-        } catch (err) {
-          console.error("Error updating profile photo", err);
-          alert('Profil fotoğrafı güncellenirken hata oluştu.');
-        }
-      };
-      img.src = event.target?.result as string;
-    };
-    reader.readAsDataURL(file);
-  };
   
   // Auth Enforcement
   const handleProtectedAction = (action: () => void) => {
@@ -1171,43 +1090,6 @@ export default function App() {
       </div>
       
       <div className="space-y-4">
-        <section className="bg-white dark:bg-neutral-900 rounded-3xl p-6 border border-sage-100 dark:border-neutral-800 shadow-sm">
-          <h3 className="text-sm font-bold text-sage-500 dark:text-neutral-400 uppercase tracking-widest mb-4">Profil Bilgileri</h3>
-          <div className="flex flex-col gap-4">
-            <div className="flex flex-col gap-2">
-              <label className="text-xs font-bold text-sage-600 dark:text-sage-300">Kullanıcı Adı</label>
-              <input 
-                type="text" 
-                value={editUsername}
-                onChange={(e) => setEditUsername(e.target.value)}
-                className="w-full bg-white dark:bg-neutral-800 border border-sage-100 dark:border-neutral-700 rounded-2xl px-4 py-3 focus:border-sage-500 focus:outline-none transition-all"
-              />
-            </div>
-            <div className="flex flex-col gap-2">
-              <label className="text-xs font-bold text-sage-600 dark:text-sage-300">Profil Fotoğrafı</label>
-              <input 
-                type="file" 
-                accept="image/*"
-                onChange={handlePhotoUpload}
-                className="w-full bg-white dark:bg-neutral-800 border border-sage-100 dark:border-neutral-700 rounded-2xl px-4 py-3 text-sm focus:border-sage-500 focus:outline-none transition-all"
-              />
-              <p className="text-xs text-sage-500">Veya URL girin:</p>
-              <input 
-                type="text" 
-                value={editPhoto}
-                onChange={(e) => setEditPhoto(e.target.value)}
-                className="w-full bg-white dark:bg-neutral-800 border border-sage-100 dark:border-neutral-700 rounded-2xl px-4 py-3 focus:border-sage-500 focus:outline-none transition-all"
-              />
-            </div>
-            <button 
-              onClick={handleSaveUsername}
-              className="bg-sage-600 text-white py-2 rounded-xl font-bold hover:bg-sage-700 transition-colors"
-            >
-              Profil Bilgilerini Kaydet
-            </button>
-          </div>
-        </section>
-
         <section className="bg-white dark:bg-neutral-900 rounded-3xl p-6 border border-sage-100 dark:border-neutral-800 shadow-sm">
           <h3 className="text-sm font-bold text-sage-500 dark:text-neutral-400 uppercase tracking-widest mb-4">Hesap & Eşitleme</h3>
           

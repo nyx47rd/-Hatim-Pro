@@ -19,6 +19,8 @@ interface ZikirTask {
   participants: string[];
   host: string;
   createdAt: string;
+  arabicText?: string;
+  meaning?: string;
 }
 
 export const ZikirPage: React.FC<ZikirPageProps> = ({ onBack, playClick, joinSessionId }) => {
@@ -37,6 +39,8 @@ export const ZikirPage: React.FC<ZikirPageProps> = ({ onBack, playClick, joinSes
   // Create Task Form State
   const [newTaskName, setNewTaskName] = useState('Subhanallah');
   const [newTaskTarget, setNewTaskTarget] = useState<string>('');
+  const [newTaskArabic, setNewTaskArabic] = useState<string>('');
+  const [newTaskMeaning, setNewTaskMeaning] = useState<string>('');
   const [isCreating, setIsCreating] = useState(false);
 
   // Local Guest State
@@ -222,6 +226,8 @@ export const ZikirPage: React.FC<ZikirPageProps> = ({ onBack, playClick, joinSes
           count: 0,
           name: newTaskName,
           target: targetNum,
+          arabicText: newTaskArabic.trim() || null,
+          meaning: newTaskMeaning.trim() || null,
           participants: [user.uid],
           createdAt: new Date().toISOString()
         });
@@ -229,6 +235,8 @@ export const ZikirPage: React.FC<ZikirPageProps> = ({ onBack, playClick, joinSes
         setShowCreateModal(false);
         setNewTaskName('Subhanallah');
         setNewTaskTarget('');
+        setNewTaskArabic('');
+        setNewTaskMeaning('');
       } catch (error) {
         console.error("Error creating task:", error);
       } finally {
@@ -240,6 +248,8 @@ export const ZikirPage: React.FC<ZikirPageProps> = ({ onBack, playClick, joinSes
         name: newTaskName,
         target: targetNum,
         count: 0,
+        arabicText: newTaskArabic.trim() || undefined,
+        meaning: newTaskMeaning.trim() || undefined,
         participants: ['guest'],
         host: 'guest',
         createdAt: new Date().toISOString()
@@ -249,6 +259,8 @@ export const ZikirPage: React.FC<ZikirPageProps> = ({ onBack, playClick, joinSes
       setShowCreateModal(false);
       setNewTaskName('Subhanallah');
       setNewTaskTarget('');
+      setNewTaskArabic('');
+      setNewTaskMeaning('');
     }
   };
 
@@ -458,6 +470,22 @@ export const ZikirPage: React.FC<ZikirPageProps> = ({ onBack, playClick, joinSes
           )}
         </div>
 
+        {/* Arabic Text & Meaning */}
+        {(activeTask.arabicText || activeTask.meaning) && (
+          <div className="w-full max-w-xs text-center space-y-2 mb-2">
+            {activeTask.arabicText && (
+              <p className="text-2xl font-bold text-emerald-400" dir="rtl" style={{ fontFamily: "'Amiri', 'Scheherazade New', serif" }}>
+                {activeTask.arabicText}
+              </p>
+            )}
+            {activeTask.meaning && (
+              <p className="text-sm text-neutral-400 italic">
+                "{activeTask.meaning}"
+              </p>
+            )}
+          </div>
+        )}
+
         {/* Main Button */}
         <button
           onClick={handleIncrement}
@@ -468,13 +496,15 @@ export const ZikirPage: React.FC<ZikirPageProps> = ({ onBack, playClick, joinSes
 
         {/* Controls */}
         <div className="flex gap-4 w-full max-w-xs">
-          <button
-            onClick={handleReset}
-            className="flex-1 bg-neutral-900 border border-neutral-800 text-white py-4 rounded-2xl flex flex-col items-center justify-center gap-1 hover:bg-neutral-800 transition-colors"
-          >
-            <RotateCcw size={20} className="text-neutral-400" />
-            <span className="text-xs font-bold">Sıfırla</span>
-          </button>
+          {(!user || activeTask.host === user?.uid || activeTask.host === 'guest') && (
+            <button
+              onClick={handleReset}
+              className="flex-1 bg-neutral-900 border border-neutral-800 text-white py-4 rounded-2xl flex flex-col items-center justify-center gap-1 hover:bg-neutral-800 transition-colors"
+            >
+              <RotateCcw size={20} className="text-neutral-400" />
+              <span className="text-xs font-bold">Sıfırla</span>
+            </button>
+          )}
           
           {user && (
             <button
@@ -551,6 +581,27 @@ export const ZikirPage: React.FC<ZikirPageProps> = ({ onBack, playClick, joinSes
                     value={newTaskTarget}
                     onChange={(e) => setNewTaskTarget(e.target.value)}
                     placeholder="Örn: 99"
+                    className="w-full bg-black border border-neutral-800 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-white transition-colors"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-bold text-neutral-400 mb-2 uppercase tracking-wider">Arapça Okunuşu / Metni (Opsiyonel)</label>
+                  <input
+                    type="text"
+                    value={newTaskArabic}
+                    onChange={(e) => setNewTaskArabic(e.target.value)}
+                    placeholder="Örn: سُبْحَانَ ٱللَّٰهِ"
+                    className="w-full bg-black border border-neutral-800 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-white transition-colors text-right"
+                    dir="auto"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-bold text-neutral-400 mb-2 uppercase tracking-wider">Anlamı (Opsiyonel)</label>
+                  <input
+                    type="text"
+                    value={newTaskMeaning}
+                    onChange={(e) => setNewTaskMeaning(e.target.value)}
+                    placeholder="Örn: Allah noksan sıfatlardan münezzehtir"
                     className="w-full bg-black border border-neutral-800 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-white transition-colors"
                   />
                 </div>

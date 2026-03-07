@@ -110,10 +110,8 @@ export const ProfilePage: React.FC<ProfilePageProps> = ({ username, onBack, play
     try {
       if (isFollowing) {
         await updateDoc(currentUserRef, { following: arrayRemove(profile.uid) });
-        setFollowersCount(prev => Math.max(0, prev - 1));
       } else {
         await updateDoc(currentUserRef, { following: arrayUnion(profile.uid) });
-        setFollowersCount(prev => prev + 1);
       }
     } catch (e) {
       console.error("Follow error", e);
@@ -145,6 +143,50 @@ export const ProfilePage: React.FC<ProfilePageProps> = ({ username, onBack, play
 
   const handleSearch = async (e: React.FormEvent) => {
     e.preventDefault();
+  };
+
+  const handlePhotoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (!e.target.files || e.target.files.length === 0 || !user) return;
+    const file = e.target.files[0];
+    
+    if (file.size > 2 * 1024 * 1024) {
+      setError('Lütfen 2MB\'dan küçük bir fotoğraf seçin.');
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = async (event) => {
+      const img = new Image();
+      img.onload = async () => {
+        const canvas = document.createElement('canvas');
+        const MAX_WIDTH = 300;
+        const MAX_HEIGHT = 300;
+        let width = img.width;
+        let height = img.height;
+
+        if (width > height) {
+          if (width > MAX_WIDTH) {
+            height *= MAX_WIDTH / width;
+            width = MAX_WIDTH;
+          }
+        } else {
+          if (height > MAX_HEIGHT) {
+            width *= MAX_HEIGHT / height;
+            height = MAX_HEIGHT;
+          }
+        }
+
+        canvas.width = width;
+        canvas.height = height;
+        const ctx = canvas.getContext('2d');
+        ctx?.drawImage(img, 0, 0, width, height);
+
+        const base64String = canvas.toDataURL('image/jpeg', 0.7);
+        setEditPhoto(base64String);
+      };
+      img.src = event.target?.result as string;
+    };
+    reader.readAsDataURL(file);
   };
 
   const handleSaveProfile = async () => {
@@ -321,9 +363,15 @@ export const ProfilePage: React.FC<ProfilePageProps> = ({ username, onBack, play
                       src={editPhoto || `https://api.dicebear.com/7.x/avataaars/svg?seed=${user?.uid}`} 
                       className="w-20 h-20 rounded-full object-cover border-2 border-white/20"
                     />
-                    <button className="absolute bottom-0 right-0 p-2 bg-white text-black rounded-full shadow-lg">
+                    <label className="absolute bottom-0 right-0 p-2 bg-white text-black rounded-full shadow-lg cursor-pointer hover:bg-gray-200 transition-colors">
                       <Camera size={14} />
-                    </button>
+                      <input 
+                        type="file" 
+                        accept="image/*"
+                        onChange={handlePhotoUpload}
+                        className="hidden"
+                      />
+                    </label>
                   </div>
                 </div>
 
