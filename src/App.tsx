@@ -1176,7 +1176,7 @@ export default function App() {
                         />
                         <button
                           onClick={handleConfirm2FA}
-                          className="bg-sage-600 text-white px-4 py-2 rounded-lg text-sm font-bold hover:bg-sage-700 transition-colors"
+                          className="bg-black text-white px-4 py-2 rounded-lg text-sm font-bold hover:bg-neutral-800 transition-colors"
                         >
                           Onayla
                         </button>
@@ -1194,7 +1194,7 @@ export default function App() {
                       className={`w-full py-2 mt-2 rounded-xl text-sm font-bold transition-colors ${
                         isMfaEnrolled 
                           ? 'bg-red-50 text-red-600 hover:bg-red-100' 
-                          : 'bg-sage-600 text-white hover:bg-sage-700'
+                          : 'bg-black text-white hover:bg-neutral-800'
                       }`}
                     >
                       {isMfaEnrolled ? '2FA\'yı Devre Dışı Bırak' : '2FA\'yı Etkinleştir'}
@@ -1220,7 +1220,7 @@ export default function App() {
                           isCompleted: false,
                           createdAt: new Date().toISOString()
                         }],
-                        readHistory: []
+                        logs: []
                       });
                       
                       setActiveView('home');
