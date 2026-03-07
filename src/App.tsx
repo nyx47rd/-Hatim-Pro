@@ -33,7 +33,9 @@ import {
   MoreHorizontal,
   Settings,
   ChevronLeft,
-  Bell
+  Bell,
+  Shield,
+  Book
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { HatimData, ReadingLog, HatimTask } from './types';
@@ -88,6 +90,8 @@ const recalculateTaskLogs = (logs: ReadingLog[], task: HatimTask) => {
   };
 };
 
+import { LegalModal } from './components/LegalModal';
+
 const LazyZikirPage = React.lazy(() => import('./components/ZikirPage').then(module => ({ default: module.ZikirPage })));
 const LazyProfilePage = React.lazy(() => import('./components/ProfilePage').then(module => ({ default: module.ProfilePage })));
 const LazyNotificationsPanel = React.lazy(() => import('./components/NotificationsPanel').then(module => ({ default: module.NotificationsPanel })));
@@ -130,6 +134,8 @@ export default function App() {
     return () => unsubscribe();
   }, [user]);
   
+  const [legalType, setLegalType] = useState<'privacy' | 'terms' | null>(null);
+
   // Auth Enforcement
   const handleProtectedAction = (action: () => void) => {
     if (!user) {
@@ -1484,6 +1490,29 @@ export default function App() {
                 Bu uygulama Yaşar Efe tarafından geliştirilmiştir. Modern bir Kur'an takip ve zikir uygulamasıdır.
               </p>
             </div>
+            
+            <div className="bg-white dark:bg-neutral-900 rounded-2xl border border-sage-100 dark:border-neutral-800 overflow-hidden shadow-sm mt-4">
+              <button 
+                onClick={() => { playClick(); setLegalType('privacy'); }}
+                className="w-full flex items-center justify-between p-4 hover:bg-sage-50 dark:hover:bg-neutral-800 transition-colors border-b border-sage-100 dark:border-neutral-800"
+              >
+                <div className="flex items-center gap-3">
+                  <Shield className="text-sage-500 dark:text-neutral-400" size={20} />
+                  <span className="font-medium text-sage-800 dark:text-white">Gizlilik Politikası</span>
+                </div>
+                <ChevronRight className="text-sage-400" size={20} />
+              </button>
+              <button 
+                onClick={() => { playClick(); setLegalType('terms'); }}
+                className="w-full flex items-center justify-between p-4 hover:bg-sage-50 dark:hover:bg-neutral-800 transition-colors"
+              >
+                <div className="flex items-center gap-3">
+                  <Book className="text-sage-500 dark:text-neutral-400" size={20} />
+                  <span className="font-medium text-sage-800 dark:text-white">Kullanım Koşulları</span>
+                </div>
+                <ChevronRight className="text-sage-400" size={20} />
+              </button>
+            </div>
           </div>
         </section>
 
@@ -2171,6 +2200,8 @@ export default function App() {
           playClick={playClick}
         />
       </Suspense>
+
+      <LegalModal isOpen={!!legalType} onClose={() => setLegalType(null)} type={legalType || 'privacy'} />
     </div>
   );
 }
