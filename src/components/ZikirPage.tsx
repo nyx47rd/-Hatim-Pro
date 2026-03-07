@@ -632,7 +632,7 @@ export const ZikirPage: React.FC<ZikirPageProps> = ({ onBack, playClick, joinSes
               
               {createModalTab === 'create' ? (
                 <div className="space-y-4">
-                  <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide">
+                  <div className="flex gap-2 overflow-x-auto pb-2">
                     {[
                       { name: 'Subhanallah', arabic: 'سُبْحَانَ ٱللَّٰهِ', meaning: 'Allah noksan sıfatlardan münezzehtir', target: 33 },
                       { name: 'Elhamdulillah', arabic: 'ٱلْحَمْدُ لِلَّٰهِ', meaning: 'Hamd Allah\'a mahsustur', target: 33 },
@@ -648,7 +648,7 @@ export const ZikirPage: React.FC<ZikirPageProps> = ({ onBack, playClick, joinSes
                           setNewTaskMeaning(z.meaning);
                           setNewTaskTarget(z.target.toString());
                         }}
-                        className="whitespace-nowrap bg-neutral-800 hover:bg-neutral-700 text-xs font-bold px-3 py-2 rounded-lg transition-colors border border-neutral-700"
+                        className="whitespace-nowrap bg-black hover:bg-neutral-900 text-xs font-bold px-3 py-2 rounded-lg transition-colors border border-neutral-800"
                       >
                         {z.name}
                       </button>
@@ -818,7 +818,7 @@ export const ZikirPage: React.FC<ZikirPageProps> = ({ onBack, playClick, joinSes
                       alert('Oda kodu kopyalandı. Arkadaşlarına gönderebilirsin.');
                     }
                   }}
-                  className="w-full bg-neutral-800 text-white font-bold py-3 rounded-xl flex items-center justify-center gap-2 hover:bg-neutral-700 transition-colors"
+                  className="w-full bg-black border border-neutral-800 text-white font-bold py-3 rounded-xl flex items-center justify-center gap-2 hover:bg-neutral-900 transition-colors"
                 >
                   <Share2 size={16} />
                   Bağlantıyı Paylaş
