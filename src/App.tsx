@@ -102,7 +102,7 @@ const LazyLeaderboardPage = React.lazy(() => import('./components/LeaderboardPag
 const LazyStatsPage = React.lazy(() => import('./components/StatsPage').then(module => ({ default: module.StatsPage })));
 const LazyNotificationsPanel = React.lazy(() => import('./components/NotificationsPanel').then(module => ({ default: module.NotificationsPanel })));
 
-type View = 'home' | 'tasks' | 'history' | 'settings' | 'zikir' | 'profile' | 'privacy' | 'terms' | 'more' | 'data-deletion' | 'leaderboard' | 'stats';
+type View = 'intro' | 'home' | 'tasks' | 'history' | 'settings' | 'zikir' | 'profile' | 'privacy' | 'terms' | 'more' | 'data-deletion' | 'leaderboard' | 'stats';
 
 class ErrorBoundary extends Component<{children: ReactNode}, {hasError: boolean}> {
   constructor(props: {children: ReactNode}) {
@@ -159,7 +159,10 @@ function AppContent() {
     if (path === '/data-deletion') {
       return 'data-deletion';
     }
-    return 'home';
+    if (path === '/home') {
+      return 'home';
+    }
+    return 'intro';
   });
   const [isNotificationsOpen, setIsNotificationsOpen] = useState(false);
   const [zikirJoinSessionId, setZikirJoinSessionId] = useState<string | null>(null);
@@ -183,6 +186,53 @@ function AppContent() {
     window.addEventListener('error', handleError);
     return () => window.removeEventListener('error', handleError);
   }, []);
+
+  // Listen to popstate for back/forward navigation
+  useEffect(() => {
+    const handlePopState = () => {
+      const path = window.location.pathname;
+      if (path.startsWith('/@')) {
+        setProfileUsername(path.substring(2));
+        setActiveView('profile');
+      } else if (path === '/privacy') {
+        setActiveView('privacy');
+      } else if (path === '/terms') {
+        setActiveView('terms');
+      } else if (path === '/data-deletion') {
+        setActiveView('data-deletion');
+      } else if (path === '/home') {
+        setActiveView('home');
+      } else if (path === '/') {
+        setActiveView('intro');
+      }
+    };
+    window.addEventListener('popstate', handlePopState);
+    return () => window.removeEventListener('popstate', handlePopState);
+  }, []);
+
+  // Synchronize state changes to URL path
+  useEffect(() => {
+    let targetPath = '/';
+    if (activeView === 'profile' && profileUsername) {
+      targetPath = `/@${profileUsername}`;
+    } else if (activeView === 'privacy') {
+      targetPath = '/privacy';
+    } else if (activeView === 'terms') {
+      targetPath = '/terms';
+    } else if (activeView === 'data-deletion') {
+      targetPath = '/data-deletion';
+    } else if (activeView === 'intro') {
+      targetPath = '/';
+    } else if (['home', 'tasks', 'history', 'settings', 'zikir', 'more', 'leaderboard', 'stats'].includes(activeView)) {
+      targetPath = '/home';
+    } else {
+      return;
+    }
+
+    if (window.location.pathname !== targetPath) {
+      window.history.pushState({}, '', targetPath);
+    }
+  }, [activeView, profileUsername]);
   
   const [unreadNotifications, setUnreadNotifications] = useState(0);
 
@@ -961,6 +1011,187 @@ function AppContent() {
       console.error("2FA disable error:", error);
       setMfaError("Devre dışı bırakılırken hata oluştu.");
     }
+  };
+
+  // Views
+  const renderIntro = () => {
+    return (
+      <div className="space-y-12 pb-24">
+        {/* Hero Section */}
+        <motion.div 
+          initial={{ opacity: 0, y: 30 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8 }}
+          className="text-center space-y-6 pt-6"
+        >
+          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-sage-100/60 dark:bg-neutral-800 text-sage-800 dark:text-sage-200 text-xs font-semibold tracking-wider uppercase">
+            <span className="flex h-2 w-2 relative">
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-sage-500 opacity-75"></span>
+              <span className="relative inline-flex rounded-full h-2 w-2 bg-sage-600"></span>
+            </span>
+            Modern Kur'an Takipçisi
+          </div>
+          
+          <h2 className="text-4xl md:text-5xl font-extrabold text-sage-900 dark:text-white tracking-tight leading-tight max-w-xl mx-auto">
+            Hatim ve Zikirlerinizi Dijital Dünyada Planlayın
+          </h2>
+          
+          <p className="text-base text-sage-600 dark:text-neutral-400 max-w-md mx-auto leading-relaxed">
+            Hatimlerinizi takip edin, gerçek zamanlı ortak zikir halkalarına katılın ve gelişmiş istatistiklerle ilerlemenizi görselleştirin.
+          </p>
+          
+          <div className="flex flex-col sm:flex-row gap-4 justify-center items-center pt-4">
+            <button
+              onClick={() => { playClick(); setActiveView('home'); }}
+              className="w-full sm:w-auto bg-black dark:bg-white text-white dark:text-black font-bold px-8 py-4 rounded-2xl shadow-lg hover:bg-neutral-800 dark:hover:bg-neutral-100 transition-all active:scale-95 flex items-center justify-center gap-2 group border border-neutral-850"
+            >
+              <span>Hemen Başla</span>
+              <ArrowRight className="group-hover:translate-x-1 transition-transform" size={18} />
+            </button>
+            
+            {!user && (
+              <button
+                onClick={() => { playClick(); setIsAuthModalOpen(true); }}
+                className="w-full sm:w-auto bg-white dark:bg-neutral-900 text-sage-800 dark:text-neutral-200 border border-sage-200 dark:border-neutral-800 font-bold px-8 py-4 rounded-2xl hover:bg-sage-50 dark:hover:bg-neutral-800 transition-all active:scale-95"
+              >
+                Giriş Yap
+              </button>
+            )}
+          </div>
+        </motion.div>
+
+        {/* Live Preview Card (Visual Hook) */}
+        <motion.div 
+          initial={{ opacity: 0, scale: 0.95 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ delay: 0.2, duration: 0.8 }}
+          className="bg-white dark:bg-neutral-900 border border-sage-100 dark:border-neutral-800 rounded-3xl p-6 shadow-xl relative overflow-hidden"
+        >
+          <div className="absolute -right-4 -bottom-4 opacity-5 pointer-events-none">
+            <BookOpen size={180} />
+          </div>
+          
+          <div className="flex justify-between items-center mb-6">
+            <div className="flex items-center gap-2">
+              <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+              <span className="text-xs font-bold uppercase tracking-wider text-sage-500 dark:text-neutral-400">Aktif Hatim Önizleme</span>
+            </div>
+            <span className="text-xs bg-sage-50 dark:bg-neutral-800 px-2.5 py-1 rounded-full text-sage-600 dark:text-neutral-300 font-semibold">Demo</span>
+          </div>
+
+          <div className="space-y-4">
+            <div className="flex justify-between items-baseline">
+              <h3 className="text-xl font-bold text-sage-800 dark:text-white">Ramazan Hatmi</h3>
+              <span className="text-2xl font-black text-sage-700 dark:text-white">58.2%</span>
+            </div>
+            
+            <div className="h-3 bg-sage-100 dark:bg-neutral-800 rounded-full overflow-hidden">
+              <div className="h-full bg-sage-500 rounded-full w-[58.2%]" />
+            </div>
+            
+            <div className="grid grid-cols-3 gap-3 pt-2">
+              <div className="bg-sage-50 dark:bg-neutral-800 p-3 rounded-xl text-center">
+                <span className="block text-[10px] text-sage-400 font-semibold uppercase tracking-wider">Okunan</span>
+                <span className="text-base font-bold text-sage-700 dark:text-white">351 Sayfa</span>
+              </div>
+              <div className="bg-sage-50 dark:bg-neutral-800 p-3 rounded-xl text-center">
+                <span className="block text-[10px] text-sage-400 font-semibold uppercase tracking-wider">Kalan</span>
+                <span className="text-base font-bold text-sage-700 dark:text-white">253 Sayfa</span>
+              </div>
+              <div className="bg-sage-50 dark:bg-neutral-800 p-3 rounded-xl text-center">
+                <span className="block text-[10px] text-sage-400 font-semibold uppercase tracking-wider">Hedef</span>
+                <span className="text-base font-bold text-sage-700 dark:text-white">604 Sayfa</span>
+              </div>
+            </div>
+          </div>
+        </motion.div>
+
+        {/* Features Grid */}
+        <section className="space-y-6">
+          <h3 className="text-sm font-semibold uppercase tracking-widest text-center text-sage-400 dark:text-neutral-500">
+            Neden HatimPro?
+          </h3>
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {/* Feature 1 */}
+            <div className="bg-white dark:bg-neutral-900 border border-sage-100 dark:border-neutral-800 p-6 rounded-2xl flex gap-4">
+              <div className="bg-sage-50 dark:bg-neutral-800 p-3 rounded-xl text-sage-600 dark:text-white h-fit">
+                <BookOpen size={24} />
+              </div>
+              <div className="space-y-1">
+                <h4 className="font-bold text-sage-800 dark:text-white">Esnek Hatim Planlama</h4>
+                <p className="text-xs text-sage-500 dark:text-neutral-400 leading-relaxed">
+                  İster cüz cüz, ister özel sayfa aralıklarıyla dilediğiniz gibi hatim görevleri oluşturun ve kolayca güncelleyin.
+                </p>
+              </div>
+            </div>
+
+            {/* Feature 2 */}
+            <div className="bg-white dark:bg-neutral-900 border border-sage-100 dark:border-neutral-800 p-6 rounded-2xl flex gap-4">
+              <div className="bg-sage-50 dark:bg-neutral-800 p-3 rounded-xl text-sage-600 dark:text-white h-fit">
+                <RotateCcw size={24} />
+              </div>
+              <div className="space-y-1">
+                <h4 className="font-bold text-sage-800 dark:text-white">Gerçek Zamanlı Zikir</h4>
+                <p className="text-xs text-sage-500 dark:text-neutral-400 leading-relaxed">
+                  Eşzamanlı online zikir odaları oluşturup aileniz ve arkadaşlarınızla birlikte zikir çekebilirsiniz.
+                </p>
+              </div>
+            </div>
+
+            {/* Feature 3 */}
+            <div className="bg-white dark:bg-neutral-900 border border-sage-100 dark:border-neutral-800 p-6 rounded-2xl flex gap-4">
+              <div className="bg-sage-50 dark:bg-neutral-800 p-3 rounded-xl text-sage-600 dark:text-white h-fit">
+                <Trophy size={24} />
+              </div>
+              <div className="space-y-1">
+                <h4 className="font-bold text-sage-800 dark:text-white">İstikrar & Motivasyon</h4>
+                <p className="text-xs text-sage-500 dark:text-neutral-400 leading-relaxed">
+                  Liderlik tablosu, takipçi etkileşimleri ve XP puanlama sistemiyle ibadetlerinizi kalıcı bir alışkanlığa dönüştürün.
+                </p>
+              </div>
+            </div>
+
+            {/* Feature 4 */}
+            <div className="bg-white dark:bg-neutral-900 border border-sage-100 dark:border-neutral-800 p-6 rounded-2xl flex gap-4">
+              <div className="bg-sage-50 dark:bg-neutral-800 p-3 rounded-xl text-sage-600 dark:text-white h-fit">
+                <BarChart2 size={24} />
+              </div>
+              <div className="space-y-1">
+                <h4 className="font-bold text-sage-800 dark:text-white">Detaylı İstatistikler</h4>
+                <p className="text-xs text-sage-500 dark:text-neutral-400 leading-relaxed">
+                  Hatim gelişimlerinizi detaylı çizelgelerle ve geçmiş okuma günlüklerinizle grafiksel olarak takip edin.
+                </p>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* Promotional Call-Out */}
+        <div className="bg-sage-800 dark:bg-neutral-900 text-white border border-sage-700/20 rounded-3xl p-8 text-center space-y-4">
+          <h3 className="text-xl font-bold">Zamanınızı Bereketlendirin</h3>
+          <p className="text-xs text-white/80 max-w-xs mx-auto leading-relaxed">
+            Hemen ücretsiz üye olun veya hesap oluşturmadan yerel modda bugünden itibaren Kur'an takibinize başlayın.
+          </p>
+          <button
+            onClick={() => { playClick(); setActiveView('home'); }}
+            className="bg-white text-black font-bold px-6 py-3 rounded-xl text-sm transition-all hover:bg-neutral-100 active:scale-95"
+          >
+            Hemen Keşfet
+          </button>
+        </div>
+
+        {/* Landing footer */}
+        <footer className="pt-8 text-center text-xs text-sage-400 dark:text-neutral-500">
+          <div className="flex justify-center gap-4 mb-2">
+            <a href="/privacy" onClick={(e) => { e.preventDefault(); setActiveView('privacy'); }} className="hover:text-sage-600 dark:hover:text-neutral-300 transition-colors">Gizlilik Politikası</a>
+            <span>•</span>
+            <a href="/terms" onClick={(e) => { e.preventDefault(); setActiveView('terms'); }} className="hover:text-sage-600 dark:hover:text-neutral-300 transition-colors">Kullanım Koşulları</a>
+          </div>
+          <p>© 2026 HatimPro. Tüm hakları saklıdır.</p>
+        </footer>
+      </div>
+    );
   };
 
   // Views
@@ -1815,11 +2046,22 @@ function AppContent() {
             {/* Header */}
             <header className="bg-white dark:bg-neutral-900 border-b border-sage-200 dark:border-neutral-800 px-6 py-4 sticky top-0 z-30">
               <div className="max-w-2xl mx-auto flex justify-between items-center">
-                <h1 className="display text-2xl font-bold text-sage-800 dark:text-white tracking-tight flex items-center gap-2">
+                <button 
+                  onClick={() => { playClick(); setActiveView('intro'); }}
+                  className="display text-2xl font-bold text-sage-800 dark:text-white tracking-tight flex items-center gap-2 hover:opacity-85 transition-opacity text-left cursor-pointer"
+                >
                   <img src="/favicon.svg" alt="HatimPro Logo" className="w-8 h-8" referrerPolicy="no-referrer" />
                   HatimPro
-                </h1>
+                </button>
                 <div className="flex items-center gap-2">
+                  {user && activeView === 'intro' && (
+                    <button 
+                      onClick={() => { playClick(); setActiveView('home'); }}
+                      className="text-xs font-bold bg-sage-600 hover:bg-sage-700 text-white px-3 py-2 rounded-xl transition-all mr-1"
+                    >
+                      Uygulamaya Git
+                    </button>
+                  )}
                   {!user && (
                     <button 
                       onClick={() => { playClick(); setIsAuthModalOpen(true); }}
@@ -1842,6 +2084,7 @@ function AppContent() {
             </header>
 
             <main className="max-w-2xl mx-auto px-6 pt-8">
+              {activeView === 'intro' && renderIntro()}
               {activeView === 'home' && renderHome()}
               {activeView === 'more' && (
                 <div className="flex flex-col gap-4 p-4">
@@ -1895,7 +2138,6 @@ function AppContent() {
                       username={profileUsername} 
                       onBack={() => {
                         setActiveView('more');
-                        window.history.pushState({}, '', '/');
                       }} 
                       playClick={playClick} 
                     />
@@ -1949,7 +2191,6 @@ function AppContent() {
                     type="privacy" 
                     onBack={() => {
                       setActiveView('settings');
-                      window.history.pushState({}, '', '/');
                     }} 
                   />
                 </div>
@@ -1960,7 +2201,6 @@ function AppContent() {
                     type="terms" 
                     onBack={() => {
                       setActiveView('settings');
-                      window.history.pushState({}, '', '/');
                     }} 
                   />
                 </div>
@@ -1970,7 +2210,6 @@ function AppContent() {
                   <DataDeletionPage 
                     onBack={() => {
                       setActiveView('settings');
-                      window.history.pushState({}, '', '/');
                     }} 
                   />
                 </div>
@@ -1978,7 +2217,7 @@ function AppContent() {
             </main>
 
             {/* Bottom Navbar */}
-            {activeView !== 'zikir' && activeView !== 'profile' && (
+            {activeView !== 'intro' && activeView !== 'zikir' && activeView !== 'profile' && (
               <nav className="fixed bottom-0 left-0 right-0 bg-white dark:bg-black border-t border-sage-200 dark:border-white/10 px-8 py-3 pb-5 z-40">
                 <div className="max-w-sm mx-auto flex justify-between items-center">
                   <button 
